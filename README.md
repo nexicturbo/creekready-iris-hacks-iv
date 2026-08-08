@@ -6,7 +6,7 @@
 
 *Generated editorial illustration for the project; it does not depict a live emergency or a screenshot of live conditions.*
 
-Verified interface captures are available in `docs/assets/creekready-hero.png` and `docs/assets/creekready-live-demo.png`; every alert shown in them is explicitly fictional.
+See the verified [interface capture](docs/assets/creekready-hero.png), [consent-control capture](docs/assets/creekready-interface.png), and [live Featherless result](docs/assets/creekready-live-demo.png); every alert shown in them is explicitly fictional.
 
 Judge materials are included as a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), and a [pitch script](docs/pitch-script.md).
 
