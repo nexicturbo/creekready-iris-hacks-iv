@@ -92,7 +92,8 @@ These are future directions, not capabilities of the submitted prototype.
 - Project status: public source repository; local demo verified; do not mark it deployed until a public build is verified
 - Team: Henderson Damian Mejia Gonzales, solo entrant
 - Presentation script: `docs/pitch-script.md`
-- Judge deck: `docs/CreekReady-Iris-Hacks-IV.pptx`
+- Judge deck PDF: `output/pdf/CreekReady-Iris-Hacks-IV.pdf`
+- Editable judge deck: `docs/CreekReady-Iris-Hacks-IV.pptx`
 
 ## Open-source acknowledgements
 
@@ -112,7 +113,8 @@ CreekReady's checked-in guidance links to [NWS Flood Safety](https://www.weather
 
 - Code: https://github.com/nexicturbo/creekready-iris-hacks-iv
 - Try it: **[ADD ONLY IF DEPLOYED AND VERIFIED]**
-- Presentation: `docs/CreekReady-Iris-Hacks-IV.pptx` (also upload or link it in the final Devpost form if required)
+- Presentation: https://github.com/nexicturbo/creekready-iris-hacks-iv/blob/main/output/pdf/CreekReady-Iris-Hacks-IV.pdf
+- Editable presentation source: `docs/CreekReady-Iris-Hacks-IV.pptx`
 - Video: **[ADD ONLY IF REQUIRED, UPLOADED, AND VERIFIED]**
 - Cover image: `docs/assets/creekready-cover.png` — generated editorial illustration; it does not depict a live emergency or live conditions.
 - Interface image: `docs/assets/creekready-hero.png` — verified local build with Featherless configured.

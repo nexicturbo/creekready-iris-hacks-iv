@@ -8,6 +8,8 @@
 
 Verified interface captures are available in `docs/assets/creekready-hero.png` and `docs/assets/creekready-live-demo.png`; every alert shown in them is explicitly fictional.
 
+Judge materials are included as a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), and a [pitch script](docs/pitch-script.md).
+
 CreekReady turns pasted emergency-alert text into a source-linked **Now / Next / If conditions worsen** plan. A household can account for children, an older adult, pets, limited mobility, or no vehicle, and request English or Spanish output.
 
 CreekReady is a preparedness aid, not an alerting or prediction system. It does not observe live conditions, contact authorities, or replace the original alert and instructions from officials.
