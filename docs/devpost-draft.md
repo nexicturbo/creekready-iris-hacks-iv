@@ -36,6 +36,8 @@ CreekReady uses a lightweight Flask application with a browser-based interface. 
 
 The AI-assisted path uses the OpenAI Python client against Featherless's OpenAI-compatible endpoint. A deterministic parser first extracts the fact panel and tokenizes exact directive sentences. Featherless receives only those parser-selected sentence spans, the selected needs/language, and the vetted action catalog; the raw alert is not sent as a separate field. The model returns a flat JSON object containing two ID lists: prioritized instruction IDs and ranked action IDs. Pydantic and allowlist checks reject extra prose, unknown IDs, duplicates, and incorrect counts. The server fixes the three stages, restores every required action before any selected optional action, and expands the validated IDs into unchanged alert wording plus localized action, reason, and citation text. The model cannot inject facts into the trusted panel or author visible safety guidance.
 
+On Featherless, `Qwen/Qwen3-8B` performs multilingual semantic ranking over request-specific IDs. Thinking is disabled and output is capped at 300 tokens because the model returns only two short ID arrays—an efficient, purposeful decision surface rather than a general chat layer.
+
 Reliability was part of the architecture rather than an afterthought. If the provider is unavailable or its output fails validation, CreekReady falls back to deterministic flood, wildfire, heat, or unclassified-alert guidance. The application stores no accounts or plans and uses no live weather, location, road, or emergency-services data.
 
 Technologies used: Python, Flask, Pydantic, HTML, CSS, JavaScript, the OpenAI Python client, and the Featherless-compatible chat-completions API.

@@ -46,9 +46,9 @@
 
 **Say:**
 
-“Every action cites an approved source. The alert remains distinct from FEMA and National Weather Service guidance, and the result states which mode ran and what it cannot know.”
+“Every action carries a source ID—either the pasted alert or checked-in FEMA/National Weather Service guidance. The interface keeps those sources distinct, states which mode ran, and names what CreekReady cannot know.”
 
-**Show:** Open or point to one source and the limitations/mode label. If the final interface supports regenerating in Spanish reliably, switch languages here; otherwise omit the next sentence.
+**Show:** Open or point to one source and the limitations/mode label. Do not merely flip the language selector on an existing result: a Spanish result requires submitting the Spanish fixture again. Omit that extra interaction in the two-minute demo and describe it in one sentence instead.
 
 **Optional sentence:** “CreekReady can generate the plan in Spanish without calling it an official alert translation.”
 
