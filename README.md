@@ -10,7 +10,7 @@
 
 See the verified [interface capture](docs/assets/creekready-hero.png), [consent-control capture](docs/assets/creekready-interface.png), [desktop product proof](docs/assets/creekready-desktop-result.png), and [live Featherless result](docs/assets/creekready-live-demo.png); every alert shown in them is explicitly fictional.
 
-Judge materials are included as a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), a [pitch script](docs/pitch-script.md), and a transparent [verification matrix](docs/evaluation.md).
+Judge materials are included as the final [Devpost project story](docs/devpost-story.md), a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), a [pitch script](docs/pitch-script.md), and a transparent [verification matrix](docs/evaluation.md).
 
 CreekReady turns pasted emergency-alert text into a source-linked **Now / Next / If conditions worsen** plan. A household can account for children, an older adult, pets, limited mobility, or no vehicle, and request English or Spanish output.
 
