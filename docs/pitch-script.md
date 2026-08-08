@@ -56,7 +56,7 @@
 
 **Say:**
 
-“Featherless receives only parser-selected directive sentences, needs, language, and a vetted action catalog. It ranks exact instruction IDs and action IDs, writing neither the quote nor the guidance. Unknown, duplicate, malformed, or extra output fails closed, and the server restores every required action before an optional one.”
+“Featherless receives only parser-selected directive sentences, needs, language, and a vetted action catalog. It ranks exact instruction IDs and action IDs, writing neither the quote nor the guidance. Unknown, duplicate, malformed, or extra output fails closed; within each fixed stage, the server restores omitted required actions ahead of selected optional ones.”
 
 **Show:** Point to the mode label and bounded-AI receipt; do not leave the demo to show code unless a judge asks.
 

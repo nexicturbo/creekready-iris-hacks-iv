@@ -22,7 +22,7 @@ CreekReady is a preparedness aid, not an alerting or prediction system. It does 
 2. The Flask API validates the request and identifies the likely hazard class.
 3. A conservative deterministic extractor creates the displayed fact panel and tokenizes exact directive sentences from the pasted text. Even in AI mode, the model cannot insert a place, time, or official instruction into this trusted panel.
 4. If `FEATHERLESS_API_KEY` is configured and the user leaves AI assist on, CreekReady sends only parser-selected directive sentences, the selected needs/language, and a server-owned catalog of vetted actions to Featherless. It does not send the raw alert as a separate field.
-5. Featherless returns two flat, prose-free ID rankings: exact alert-instruction IDs and approved action IDs. Pydantic rejects malformed, unknown, duplicate, or extra output. The server fixes the three stages, restores every required action before any selected optional action, and supplies all displayed action, reason, citation, and exact-quote text.
+5. Featherless returns two flat, prose-free ID rankings: exact alert-instruction IDs and approved action IDs. Pydantic rejects malformed, unknown, duplicate, or extra output. Within each fixed stage, the server restores every omitted required action ahead of selected optional actions and supplies all displayed action, reason, citation, and exact-quote text.
 6. If the provider is unavailable, unconfigured, malformed, or fails validation, CreekReady returns a deterministic plan grounded in its checked-in official-guidance catalog.
 7. The interface displays extracted facts, actions, sources, limitations, and which mode produced the result.
 
@@ -141,7 +141,7 @@ The final flattened Featherless contract has also been live-verified with record
 - Every live-model response is parsed into an ID-only schema before use.
 - The model may only rank exact instruction IDs and action IDs from request-specific allowlists; it cannot author visible safety guidance, quotes, reasons, facts, or citations.
 - IDs cannot repeat, unknown IDs and extra fields fail validation, and the server—not the model—owns stage assignment.
-- The model's ranking hint cannot remove required actions: the server restores every omitted required item before any selected optional action.
+- The model's ranking hint cannot remove required actions: within each fixed stage, the server restores every omitted required item ahead of selected optional actions.
 - The displayed place, time, and official-instruction facts always come from the conservative deterministic extractor, not model-authored fields.
 - Provider errors and invalid outputs fail closed to the guided fallback.
 - The plan endpoint is rate-limited by the client address observed by Flask to protect the hosted inference path; `PLAN_RATE_LIMIT` can tune the default `12 per minute` policy. `TRUSTED_PROXY_HOPS=0` ignores spoofable forwarding headers by default; a reverse-proxy deployment must set the exact verified hop count as described above. The included Gunicorn configuration uses one threaded worker so the default in-memory limit is process-consistent. A multi-worker deployment should configure a shared `RATELIMIT_STORAGE_URI`.
