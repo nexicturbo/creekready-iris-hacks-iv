@@ -14,29 +14,29 @@
   <a class="skip-link" href="#planner" data-i18n="skip">Skip to the planner</a>
 
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="CreekReady home">
+    <a class="brand" href="#top" aria-label="CreekReady home" data-i18n-aria-label="homeLabel">
       <span class="brand-mark" aria-hidden="true"><span></span></span>
       <span>CreekReady</span>
     </a>
-    <div class="system-pill" id="system-pill" role="status" aria-live="polite">
+    <div class="system-pill" id="system-pill" role="status" aria-live="polite" aria-atomic="true">
       <span class="status-dot" aria-hidden="true"></span>
       <span id="system-status" data-i18n="checking">Checking planner…</span>
     </div>
   </header>
 
-  <main id="top">
+  <main id="top" tabindex="-1">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow"><span aria-hidden="true">01</span> <span data-i18n="eyebrow">Official alert → household action</span></p>
         <h1 id="hero-title" data-i18n="heroTitle">Make the next safe step clear.</h1>
         <p class="hero-lede" data-i18n="heroLede">Paste an official emergency alert. CreekReady separates its facts from general guidance, then organizes a practical plan around your household.</p>
-        <div class="trust-row" aria-label="CreekReady safeguards">
+        <div class="trust-row" aria-label="CreekReady safeguards" data-i18n-aria-label="safeguardsLabel">
           <span data-i18n="trustOne">Sources stay attached</span>
           <span data-i18n="trustTwo">No live tracking</span>
           <span data-i18n="trustThree">English + Español</span>
         </div>
       </div>
-      <aside class="hero-map" aria-label="How CreekReady works">
+      <aside class="hero-map" aria-label="How CreekReady works" data-i18n-aria-label="routeLabel">
         <div class="route-line" aria-hidden="true"></div>
         <ol>
           <li><span>1</span><div><strong data-i18n="routeOneTitle">Paste</strong><small data-i18n="routeOneText">the complete alert</small></div></li>
@@ -47,7 +47,7 @@
       </aside>
     </section>
 
-    <section class="planner-wrap" id="planner" aria-labelledby="planner-title">
+    <section class="planner-wrap" id="planner" aria-labelledby="planner-title" tabindex="-1">
       <div class="section-heading">
         <p class="eyebrow"><span aria-hidden="true">02</span> <span data-i18n="plannerEyebrow">Build your action map</span></p>
         <h2 id="planner-title" data-i18n="plannerTitle">Start with the alert itself.</h2>
@@ -69,7 +69,7 @@
               <button class="sample-button" type="button" data-sample="wildfire"><span class="sample-symbol sample-wildfire" aria-hidden="true"></span><span data-i18n="sampleWildfire">Wildfire</span></button>
               <button class="sample-button" type="button" data-sample="heat"><span class="sample-symbol sample-heat" aria-hidden="true"></span><span data-i18n="sampleHeat">Extreme heat</span></button>
             </div>
-            <textarea id="alert-text" name="alert_text" rows="9" minlength="40" maxlength="8000" required aria-describedby="alert-hint alert-count" data-i18n-placeholder="alertPlaceholder" placeholder="Paste the complete official alert here…"></textarea>
+            <textarea id="alert-text" name="alert_text" rows="9" minlength="40" maxlength="8000" required aria-describedby="alert-hint alert-count" aria-errormessage="error-message" data-i18n-placeholder="alertPlaceholder" placeholder="Paste the complete official alert here…"></textarea>
             <div class="textarea-meta">
               <span data-i18n="sampleWarning">Samples are demonstrations—not active warnings.</span>
               <span id="alert-count" aria-live="polite">0 / 8,000</span>
@@ -103,11 +103,11 @@
               </select>
             </div>
             <label class="ai-toggle" for="use-ai">
-              <input id="use-ai" name="use_ai" type="checkbox" checked>
+              <input id="use-ai" name="use_ai" type="checkbox" aria-describedby="ai-toggle-description" checked>
               <span class="toggle-track" aria-hidden="true"><span></span></span>
               <span class="toggle-copy">
                 <strong data-i18n="aiToggleTitle">Featherless AI assist</strong>
-                <small data-i18n="aiToggleText">Sends this alert to Featherless. Turn off to keep it on this CreekReady server.</small>
+                <small id="ai-toggle-description" data-i18n="aiToggleText">Sends extracted alert instructions, selected needs, and a vetted action list to Featherless. Turn off to keep this request on the CreekReady server.</small>
               </span>
             </label>
             <button class="primary-button" id="submit-button" type="submit">
@@ -121,7 +121,7 @@
           <strong data-i18n="errorTitle">We couldn’t build that plan.</strong>
           <span id="error-message"></span>
         </div>
-        <div id="loading-panel" class="loading-panel" role="status" aria-live="polite" hidden>
+        <div id="loading-panel" class="loading-panel" role="status" aria-live="polite" aria-atomic="true" hidden>
           <span class="loading-track" aria-hidden="true"><span></span></span>
           <span data-i18n="loading">Reading the alert, checking sources, and organizing next steps…</span>
         </div>
@@ -140,14 +140,21 @@
         </div>
       </div>
 
-      <div class="result-toolbar" aria-label="Plan tools">
+      <div class="result-toolbar" aria-label="Plan tools" data-i18n-aria-label="planToolsLabel">
         <button type="button" class="tool-button" id="copy-plan"><span aria-hidden="true">▣</span><span data-i18n="copy">Copy plan</span></button>
-        <button type="button" class="tool-button" id="read-plan"><span aria-hidden="true">◖</span><span data-i18n="read">Read aloud</span></button>
+        <button type="button" class="tool-button" id="read-plan" aria-pressed="false"><span aria-hidden="true">◖</span><span data-i18n="read">Read aloud</span></button>
         <button type="button" class="tool-button" id="edit-alert"><span aria-hidden="true">↖</span><span data-i18n="edit">Edit alert</span></button>
-        <span id="tool-status" class="tool-status" role="status" aria-live="polite"></span>
+        <span id="tool-status" class="tool-status" role="status" aria-live="polite" aria-atomic="true"></span>
       </div>
 
       <div id="disclaimer" class="disclaimer" role="note"></div>
+
+      <div class="household-note">
+        <span aria-hidden="true">⌂</span>
+        <div><strong data-i18n="householdPlan">Household fit</strong><p id="household-summary"></p></div>
+      </div>
+
+      <div id="stage-grid" class="stage-grid" aria-label="Staged action plan" data-i18n-aria-label="stagesLabel"></div>
 
       <article class="facts-panel" aria-labelledby="facts-title">
         <div class="panel-heading">
@@ -169,12 +176,31 @@
         </div>
       </article>
 
-      <div class="household-note">
-        <span aria-hidden="true">⌂</span>
-        <div><strong data-i18n="householdPlan">Household fit</strong><p id="household-summary"></p></div>
-      </div>
+      <section id="ai-receipt" class="ai-receipt" aria-labelledby="ai-receipt-title" hidden>
+        <div class="ai-receipt-heading">
+          <p class="micro-label" data-i18n="aiReceiptLabel">Bounded AI receipt</p>
+          <h3 id="ai-receipt-title" data-i18n="aiReceiptTitle">See the exact alert wording Featherless prioritized</h3>
+          <p id="ai-receipt-summary"></p>
+          <p id="ai-receipt-server-summary" class="ai-receipt-server-summary"></p>
+        </div>
+        <div class="ai-receipt-selection">
+          <strong data-i18n="aiReceiptExactLabel">Exact alert wording, unchanged</strong>
+          <ol id="ai-instruction-list"></ol>
+        </div>
+      </section>
 
-      <div id="stage-grid" class="stage-grid" aria-label="Staged action plan"></div>
+      <section class="trust-architecture" aria-labelledby="trust-architecture-title">
+        <div class="trust-architecture-heading">
+          <p class="micro-label" data-i18n="trustArchitectureLabel">Grounded by design</p>
+          <h3 id="trust-architecture-title" data-i18n="trustArchitectureTitle">AI is bounded here.</h3>
+        </div>
+        <ol class="trust-architecture-grid">
+          <li><span aria-hidden="true">01</span><div><strong data-i18n="trustFactTitle">Alert facts</strong><small data-i18n="trustFactText">Extracted deterministically from the alert you pasted</small></div></li>
+          <li><span aria-hidden="true">02</span><div><strong data-i18n="trustGuidanceTitle">Guidance</strong><small data-i18n="trustGuidanceText">Drawn from a vetted, source-linked catalog</small></div></li>
+          <li><span aria-hidden="true">03</span><div><strong data-i18n="trustAiTitle">Featherless</strong><small data-i18n="trustAiText">Prioritizes exact alert instruction IDs and approved action IDs—authors neither</small></div></li>
+          <li><span aria-hidden="true">04</span><div><strong data-i18n="trustFallbackTitle">Fail-safe</strong><small data-i18n="trustFallbackText">Invalid or unavailable AI triggers a deterministic fallback</small></div></li>
+        </ol>
+      </section>
 
       <div class="evidence-grid">
         <section class="sources-panel" aria-labelledby="sources-title">
@@ -193,7 +219,7 @@
       </div>
     </section>
 
-    <section class="safety-strip" aria-label="Emergency reminder">
+    <section class="safety-strip" aria-label="Emergency reminder" data-i18n-aria-label="emergencyLabel">
       <strong data-i18n="safetyTitle">Official instructions come first.</strong>
       <p data-i18n="safetyText">CreekReady cannot see current conditions. For an immediate life-threatening emergency in the U.S., call 911.</p>
     </section>

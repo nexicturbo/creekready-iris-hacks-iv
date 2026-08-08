@@ -38,9 +38,9 @@
 
 **Say when the result appears:**
 
-“A conservative local extractor creates this fact panel; the model cannot inject a place, time, or official instruction. The plan then gives us three moments: Now, Next, and If conditions worsen.”
+“The three-stage plan appears first: Now, Next, and If conditions worsen. A deterministic extractor creates the fact panel below; the model cannot inject a place, time, or official instruction.”
 
-**Show:** Sweep once through the fact panel and the three stage headings. Pause on one household-specific action.
+**Show:** Sweep across the three stage headings, pause on one household-specific action and its source chip, then point to the fact panel.
 
 ### 1:10–1:30 — Trust, sources, and language
 
@@ -56,9 +56,9 @@
 
 **Say:**
 
-“With Featherless, the model can only rank vetted action IDs—it cannot write the guidance you see. CreekReady rejects unknown, duplicate, misplaced, or missing-required IDs. If validation fails, a deterministic official-guidance fallback takes over. No account, location tracking, or database is required.”
+“Featherless receives only parser-selected directive sentences, needs, language, and a vetted action catalog. It ranks exact instruction IDs and action IDs, writing neither the quote nor the guidance. Unknown, duplicate, malformed, or extra output fails closed, and the server restores every required action before an optional one.”
 
-**Show:** Stay on the completed result. Point to the mode label; do not leave the demo to show code unless a judge asks.
+**Show:** Point to the mode label and bounded-AI receipt; do not leave the demo to show code unless a judge asks.
 
 ### 1:48–2:00 — Close
 
@@ -75,12 +75,12 @@
 - **If asked whether alerts are live:** “No. This prototype processes text the user supplies and has no live alert, weather, road, or location feed.”
 - **If asked whether it is emergency advice:** “It is a preparedness aid. The original alert, local authorities, and emergency services remain authoritative.”
 - **If asked about accuracy:** “We have not established an accuracy metric or completed field validation. We constrain the output structurally and visibly fall back, but formal evaluation is essential future work.”
-- **If asked about privacy:** “The app stores no account or plan. With Featherless enabled, the pasted text is sent to that provider, so users should avoid sensitive information and review provider policies. The AI toggle can be turned off so the CreekReady server processes the request without forwarding it to Featherless.”
+- **If asked about privacy:** “The app stores no account or plan. With Featherless enabled, parser-selected directive sentences, selected needs/language, and the vetted action catalog are sent to that provider; the raw alert is not sent as a separate field. Those sentences can still contain sensitive text, so users should avoid private information and review provider policies. The AI toggle turns that forwarding off.”
 
 ## Judge-question anchors
 
 - **Innovation:** household constraints plus source-bounded structured output, not an open-ended emergency chatbot.
 - **Impact:** bridges the gap between receiving an official warning and preparing a specific household.
-- **Why Featherless is purposeful:** the model resolves the genuinely variable ranking problem across hazard type and household constraints, while the deterministic server owns facts, visible guidance, validation, and fallback. It is a bounded decision component, not a decorative chat layer.
-- **Execution:** conservative local facts, request validation, ID-only provider adapter, catalog/stage/source validation, 99 passing offline tests, verified live Featherless smoke checks, rate limiting, deterministic fallback, and explicit limitations.
+- **Why Featherless is purposeful:** the model performs semantic prioritization over variable English/Spanish alert directives and household-aware action candidates. The deterministic server owns facts, exact visible wording, stage assignment, required actions, validation, and fallback. It is a bounded decision component, not a decorative chat layer.
+- **Execution:** deterministic fact isolation, data-minimized ID-only provider adapter, required-action restoration, 113 passing offline tests, recorded live English/Spanish/adversarial-shaped integration checks, rate limiting, deterministic fallback, and explicit limitations.
 - **Responsible AI:** no prediction, no invented live data, no replacement of official instructions, and no unverified performance claims.

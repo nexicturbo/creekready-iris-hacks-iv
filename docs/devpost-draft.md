@@ -28,13 +28,13 @@ A user pastes text from an official emergency alert, selects relevant household 
 - **Next** — practical household preparation.
 - **If conditions worsen** — a clear reminder that official instructions and observed conditions take priority.
 
-Each action identifies its source, and the result displays limitations rather than pretending the system has live situational awareness. With AI assist enabled, Featherless solves the variable prioritization problem across the detected hazard and selected household constraints, but it can rank and select only from a server-owned catalog of vetted action IDs; it never authors the safety guidance shown to the user. If that call is disabled, unavailable, fails, or returns content that does not validate, the application automatically switches to a deterministic official-guidance fallback, so the core workflow remains demonstrable without a network model call.
+Each action identifies its source, and the result displays limitations rather than pretending the system has live situational awareness. With AI assist enabled, Featherless solves two bounded semantic tasks: it prioritizes exact directive sentences already present in the pasted alert and ranks a server-owned catalog of vetted actions around the selected household constraints. It returns IDs only and never authors the safety guidance or quotes shown to the user. A visible selection receipt shows the exact unchanged alert wording it prioritized, the candidate counts, and how many required actions the server retained. If that call is disabled, unavailable, fails, or returns content that does not validate, the application automatically switches to a deterministic official-guidance fallback.
 
 ## How we built it
 
 CreekReady uses a lightweight Flask application with a browser-based interface. The backend validates incoming alert text, household selections, and language using Pydantic. A planning service then selects official references for the likely hazard.
 
-The AI-assisted path uses the OpenAI Python client against Featherless's OpenAI-compatible endpoint. The model receives the pasted alert, selected needs, and a small catalog of approved, source-linked actions, then returns only ordered action IDs in a fixed three-stage JSON shape. Pydantic and catalog checks reject extra prose, unknown or duplicate IDs, wrong-stage selections, and omissions of required actions. The server expands validated IDs into the localized action, reason, and citation text. Crucially, the displayed place, time, and official-instruction panel always comes from a conservative local extractor—even in Featherless mode—so the model cannot inject facts into the trusted panel.
+The AI-assisted path uses the OpenAI Python client against Featherless's OpenAI-compatible endpoint. A deterministic parser first extracts the fact panel and tokenizes exact directive sentences. Featherless receives only those parser-selected sentence spans, the selected needs/language, and the vetted action catalog; the raw alert is not sent as a separate field. The model returns a flat JSON object containing two ID lists: prioritized instruction IDs and ranked action IDs. Pydantic and allowlist checks reject extra prose, unknown IDs, duplicates, and incorrect counts. The server fixes the three stages, restores every required action before any selected optional action, and expands the validated IDs into unchanged alert wording plus localized action, reason, and citation text. The model cannot inject facts into the trusted panel or author visible safety guidance.
 
 Reliability was part of the architecture rather than an afterthought. If the provider is unavailable or its output fails validation, CreekReady falls back to deterministic flood, wildfire, heat, or unclassified-alert guidance. The application stores no accounts or plans and uses no live weather, location, road, or emergency-services data.
 
@@ -42,7 +42,7 @@ Technologies used: Python, Flask, Pydantic, HTML, CSS, JavaScript, the OpenAI Py
 
 ## Challenges we ran into
 
-The central challenge was not producing more text; it was keeping model influence bounded. Emergency information has a much higher cost of hallucination than a typical chatbot response. I separated locally extracted facts from AI-assisted ranking, moved all visible safety language into a reviewed server-owned catalog, validated every selected ID and stage, and made invalid AI output trigger a safe fallback.
+The central challenge was not producing more text; it was keeping model influence bounded. Emergency information has a much higher cost of hallucination than a typical chatbot response. I separated deterministically extracted facts from AI-assisted ranking, moved all visible safety language into a reviewed server-owned catalog, minimized what leaves the server, validated every returned ID, restored required actions server-side, and made invalid AI output trigger a safe fallback.
 
 A second challenge was making household personalization useful without implying medical expertise or live knowledge. CreekReady treats selections such as limited mobility or no vehicle as planning constraints and gives general preparation prompts while continuing to defer to the source alert and authorities.
 
@@ -52,14 +52,15 @@ The third challenge was reliability under hackathon conditions. Network access, 
 
 - A complete alert-to-plan workflow with explicit facts, three action stages, source links, and limitations.
 - A trusted fact panel that the AI cannot populate with invented locations, timing, or official instructions.
-- An ID-only AI contract: Featherless can rank vetted actions but cannot write visible safety guidance.
-- Request and response validation that rejects unknown, duplicate, misplaced, missing-required, or free-form model output.
+- An ID-only AI contract: Featherless prioritizes exact alert wording and vetted actions but cannot write either one.
+- A visible, auditable selection receipt with exact unchanged quotes and candidate/ranking counts.
+- Request and response validation that rejects unknown, duplicate, incorrectly sized, or free-form model output, while server-side restoration prevents any required action from disappearing.
 - Automatic fallback when Featherless is not configured, errors, or returns an invalid payload.
 - Household-aware planning for children, an older adult, pets, limited mobility, and no vehicle.
 - English and Spanish plan generation.
 - A deliberately small privacy footprint: no accounts, database, geolocation, or persistent alert storage.
-- A 99-test network-free suite covering boundaries, served frontend assets and provider-transmission copy, English and Spanish hazard extraction, mixed and expired-alert handling, conservative extraction confidence, grounded fallback behavior, all household needs, adversarial provider payloads, source validation, Unicode output, rate limiting, timestamps, and security headers.
-- Verified live Featherless integration with fictional English, Spanish, and prompt-injection-shaped alerts; every checked call returned only approved catalog IDs with required actions intact.
+- A 113-test network-free suite covering boundaries, served frontend assets and disclosure copy, English and Spanish hazard extraction, mixed and expired-alert handling, conservative extraction confidence, exact instruction tokenization, grounded fallback behavior, all household needs, flat/adversarial provider payloads, required-action restoration, source validation, Unicode output, accessibility/runtime invariants, rate limiting, timestamps, configuration normalization, and security headers.
+- Recorded live Featherless checks with fictional English wildfire, Spanish flood, and injection-shaped flood requests; each returned only allowlisted IDs, preserved exact selected wording, and retained every required server-owned action. These are integration observations, not accuracy or availability claims.
 
 ## What we learned
 
@@ -118,6 +119,7 @@ CreekReady's checked-in guidance links to [NWS Flood Safety](https://www.weather
 - Video: **[ADD ONLY IF REQUIRED, UPLOADED, AND VERIFIED]**
 - Cover image: `docs/assets/creekready-cover.png` — generated editorial illustration; it does not depict a live emergency or live conditions.
 - Interface image: `docs/assets/creekready-hero.png` — verified local build with Featherless configured.
+- Desktop product proof: `docs/assets/creekready-desktop-result.png` — clean 16:9 fictional result showing mode, household fit, all three action stages, and source IDs.
 - Result image: `docs/assets/creekready-live-demo.png` — verified fictional-sample result; not a current alert.
 
 ## Submitter

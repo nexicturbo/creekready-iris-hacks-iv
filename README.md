@@ -1,14 +1,16 @@
 # CreekReady
 
+[![Verify CreekReady](https://github.com/nexicturbo/creekready-iris-hacks-iv/actions/workflows/ci.yml/badge.svg)](https://github.com/nexicturbo/creekready-iris-hacks-iv/actions/workflows/ci.yml)
+
 **Official alert in. Clear household plan out.**
 
 ![CreekReady editorial illustration showing an alert becoming a household action plan](docs/assets/creekready-cover.png)
 
 *Generated editorial illustration for the project; it does not depict a live emergency or a screenshot of live conditions.*
 
-See the verified [interface capture](docs/assets/creekready-hero.png), [consent-control capture](docs/assets/creekready-interface.png), and [live Featherless result](docs/assets/creekready-live-demo.png); every alert shown in them is explicitly fictional.
+See the verified [interface capture](docs/assets/creekready-hero.png), [consent-control capture](docs/assets/creekready-interface.png), [desktop product proof](docs/assets/creekready-desktop-result.png), and [live Featherless result](docs/assets/creekready-live-demo.png); every alert shown in them is explicitly fictional.
 
-Judge materials are included as a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), and a [pitch script](docs/pitch-script.md).
+Judge materials are included as a [browser-viewable PDF](output/pdf/CreekReady-Iris-Hacks-IV.pdf), an editable [PowerPoint deck](docs/CreekReady-Iris-Hacks-IV.pptx), a [pitch script](docs/pitch-script.md), and a transparent [verification matrix](docs/evaluation.md).
 
 CreekReady turns pasted emergency-alert text into a source-linked **Now / Next / If conditions worsen** plan. A household can account for children, an older adult, pets, limited mobility, or no vehicle, and request English or Spanish output.
 
@@ -18,9 +20,9 @@ CreekReady is a preparedness aid, not an alerting or prediction system. It does 
 
 1. A user pastes the text of an official alert and selects household needs and a language.
 2. The Flask API validates the request and identifies the likely hazard class.
-3. A conservative local extractor creates the displayed fact panel from the pasted text. Even in AI mode, the model cannot insert a place, time, or official instruction into this trusted panel.
-4. If `FEATHERLESS_API_KEY` is configured and the user leaves AI assist on, CreekReady asks a Featherless-hosted model to rank and select from a server-owned catalog of approved action IDs.
-5. Pydantic validates the ID-only response, its three-stage order, every required item, and every selected ID. The server—not the model—supplies all displayed action, reason, and citation text.
+3. A conservative deterministic extractor creates the displayed fact panel and tokenizes exact directive sentences from the pasted text. Even in AI mode, the model cannot insert a place, time, or official instruction into this trusted panel.
+4. If `FEATHERLESS_API_KEY` is configured and the user leaves AI assist on, CreekReady sends only parser-selected directive sentences, the selected needs/language, and a server-owned catalog of vetted actions to Featherless. It does not send the raw alert as a separate field.
+5. Featherless returns two flat, prose-free ID rankings: exact alert-instruction IDs and approved action IDs. Pydantic rejects malformed, unknown, duplicate, or extra output. The server fixes the three stages, restores every required action before any selected optional action, and supplies all displayed action, reason, citation, and exact-quote text.
 6. If the provider is unavailable, unconfigured, malformed, or fails validation, CreekReady returns a deterministic plan grounded in its checked-in official-guidance catalog.
 7. The interface displays extracted facts, actions, sources, limitations, and which mode produced the result.
 
@@ -28,7 +30,9 @@ CreekReady is a preparedness aid, not an alerting or prediction system. It does 
 Browser
   -> Flask routes and request validation
      -> PlanningService
-        -> FeatherlessPlanner -> validated, ordered action IDs
+        -> deterministic facts + exact directive candidates
+        -> FeatherlessPlanner -> validated instruction/action ID rankings
+        -> server stage mapping + required-action restoration
         -> guided fallback    -> deterministic structured result
      -> source-linked JSON response
   -> accessible plan interface
@@ -120,26 +124,27 @@ Supported household needs are `children`, `older_adult`, `pet`, `limited_mobilit
 After installing the requirements, run:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m pytest -q tests
 ```
 
-Current verified result: **99 tests passed** in the network-free suite. Coverage includes input and size boundaries, provider, fallback, rate-limit, and served-frontend modes, English and Spanish flood/wildfire/heat/unclassified behavior, mixed and expired-alert handling, all supported household needs, Spanish Unicode output, conservative fact extraction and confidence, explicit provider-transmission copy, strict action-ID/stage/source integrity, prompt-injection-shaped inputs, provider failures and invalid payloads, UTC timestamps, and security headers.
+Current verified result: **113 tests passed** in the network-free suite. Coverage includes input and size boundaries, provider, fallback, rate-limit, and served-frontend modes, English and Spanish flood/wildfire/heat/unclassified behavior, mixed and expired-alert handling, all supported household needs, Spanish Unicode output, conservative fact extraction and confidence, exact instruction tokenization, provider data minimization, strict flat ID contracts, required-action restoration, prompt-injection-shaped inputs, frontend accessibility/runtime invariants, provider failures and invalid payloads, UTC timestamps, configuration normalization, and security headers.
 
 The same suite and dependency check also pass in a clean Python 3.12 environment matching the release container.
 
-The live Featherless path has also been smoke-tested with fictional English and Spanish alerts plus a prompt-injection-shaped alert. Each verified call returned `mode: featherless`, retained all required actions, and exposed only approved catalog IDs. These are integration checks, not an accuracy, latency, or availability claim.
+The final flattened Featherless contract has also been live-verified with recorded fictional English wildfire, Spanish flood, and prompt-injection-shaped flood requests. Each recorded call returned `mode: featherless`, selected only allowlisted IDs, preserved exact alert wording, and retained every required server-owned action. See the [verification matrix](docs/evaluation.md) for the exact observations and limitations. These are integration checks, not an accuracy, latency, or availability claim.
 
 ## Safety and privacy
 
 - Every live-model response is parsed into an ID-only schema before use.
-- The model may only select exact action IDs from the request-specific allowlist; it cannot author visible safety guidance, reasons, facts, or citations.
-- Required action IDs cannot be omitted, IDs cannot repeat or move between stages, and extra fields fail validation.
-- The displayed place, time, and official-instruction facts always come from the conservative local extractor, not model-authored fields.
+- The model may only rank exact instruction IDs and action IDs from request-specific allowlists; it cannot author visible safety guidance, quotes, reasons, facts, or citations.
+- IDs cannot repeat, unknown IDs and extra fields fail validation, and the server—not the model—owns stage assignment.
+- The model's ranking hint cannot remove required actions: the server restores every omitted required item before any selected optional action.
+- The displayed place, time, and official-instruction facts always come from the conservative deterministic extractor, not model-authored fields.
 - Provider errors and invalid outputs fail closed to the guided fallback.
 - The plan endpoint is rate-limited by the client address observed by Flask to protect the hosted inference path; `PLAN_RATE_LIMIT` can tune the default `12 per minute` policy. The included Gunicorn configuration uses one threaded worker so the default in-memory limit is process-consistent. A multi-worker or reverse-proxy production deployment should configure trusted proxy handling and a shared `RATELIMIT_STORAGE_URI`.
 - Results carry an explicit limitation and retain links to the underlying guidance.
 - CreekReady has no live alert feed, weather feed, map, road status, or emergency-services integration.
-- Submitted alert text is processed in memory and is not persistently stored by the application. With Featherless enabled, it is sent to that provider for action ranking; consult the provider's policies before submitting sensitive content. Users can turn AI assist off per request so the CreekReady server processes it without forwarding it to Featherless.
+- Submitted alert text is processed in memory and is not persistently stored by the application. With Featherless enabled, parser-selected directive sentences, selected needs/language, and the vetted action catalog are sent to that provider; the raw alert is not sent as a separate field. Because selected sentences can still contain sensitive text, consult the provider's policies and do not paste private information. Users can turn AI assist off per request so the CreekReady server processes it without forwarding anything to Featherless.
 
 If danger is immediate, follow local authorities and use emergency services—not this application.
 

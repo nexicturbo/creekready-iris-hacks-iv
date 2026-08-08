@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Literal, Protocol
+from typing import Iterable, Literal
 
-from .models import ActionItem, PlanStage
+from .models import ActionItem, PlanStage, PrioritizedInstruction
 
 
 StageKey = Literal["now", "next", "worse"]
 STAGE_ORDER: tuple[StageKey, ...] = ("now", "next", "worse")
+MAX_MODEL_RANKED_ACTIONS = 5
 ActionSpec = tuple[
     str,
     StageKey,
@@ -18,11 +19,6 @@ ActionSpec = tuple[
     str,
     str,
 ]
-
-
-class SelectionLike(Protocol):
-    key: StageKey
-    action_ids: list[str]
 
 
 @dataclass(frozen=True)
@@ -53,6 +49,20 @@ class CatalogAction:
             reason=self.reason,
             source_ids=list(self.source_ids),
         )
+
+
+@dataclass(frozen=True)
+class InstructionCandidate:
+    """Exact server-held alert wording that a model may reference by ID only."""
+
+    id: str
+    text: str
+
+    def as_prompt_item(self) -> dict[str, str]:
+        return {"id": self.id, "text": self.text}
+
+    def as_prioritized_instruction(self) -> PrioritizedInstruction:
+        return PrioritizedInstruction(id=self.id, text=self.text)
 
 
 # Stable IDs are deliberately language-independent. Each tuple contains:
@@ -315,47 +325,136 @@ def _stage_copy(language: str) -> dict[StageKey, tuple[str, str]]:
     }
 
 
-def validate_selections(
-    selections: Iterable[SelectionLike], catalog: list[CatalogAction]
+def action_rank_target(catalog: list[CatalogAction]) -> int:
+    return min(MAX_MODEL_RANKED_ACTIONS, len(catalog))
+
+
+def validate_ranked_action_ids(
+    ranked_action_ids: Iterable[str],
+    catalog: list[CatalogAction],
 ) -> None:
-    selection_list = list(selections)
-    if [stage.key for stage in selection_list] != list(STAGE_ORDER):
-        raise ValueError("The model returned an invalid stage order.")
+    """Validate a fixed-size ranking hint over the per-request action catalog."""
 
-    approved = {item.id: item for item in catalog}
+    ranked = list(ranked_action_ids)
+    expected_count = action_rank_target(catalog)
+    if len(ranked) != expected_count:
+        raise ValueError(
+            f"The model must return exactly {expected_count} ranked action IDs."
+        )
+
+    approved = {item.id for item in catalog}
     seen: set[str] = set()
-    for stage in selection_list:
-        for action_id in stage.action_ids:
-            if action_id not in approved:
-                raise ValueError("The model returned an unapproved action ID.")
-            if action_id in seen:
-                raise ValueError("The model returned a duplicate action ID.")
-            if approved[action_id].stage != stage.key:
-                raise ValueError("The model returned an action ID in the wrong stage.")
-            seen.add(action_id)
-
-    required = {item.id for item in catalog if item.required}
-    if not required.issubset(seen):
-        raise ValueError("The model omitted a required action ID.")
+    for action_id in ranked:
+        if action_id not in approved:
+            raise ValueError("The model returned an unapproved action ID.")
+        if action_id in seen:
+            raise ValueError("The model returned a duplicate action ID.")
+        seen.add(action_id)
 
 
-def expand_selections(
-    selections: Iterable[SelectionLike],
+def build_ranked_stages(
+    ranked_action_ids: Iterable[str],
     catalog: list[CatalogAction],
     language: str,
 ) -> list[PlanStage]:
-    selection_list = list(selections)
-    validate_selections(selection_list, catalog)
+    """Apply model ranking hints without letting required actions disappear.
+
+    Model-ranked required IDs retain their relative order inside each fixed
+    stage. Missing required actions follow in reviewed catalog order, before any
+    model-selected optional IDs. Thus an optional hint can never outrank a
+    required action that the model omitted. Optional actions appear only when
+    selected by the model.
+    """
+
+    ranked = list(ranked_action_ids)
+    validate_ranked_action_ids(ranked, catalog)
     approved = {item.id: item for item in catalog}
+    selected = set(ranked)
     stage_copy = _stage_copy(language)
-    return [
-        PlanStage(
-            key=selection.key,
-            title=stage_copy[selection.key][0],
-            subtitle=stage_copy[selection.key][1],
-            items=[approved[action_id].as_action_item() for action_id in selection.action_ids],
+    stages: list[PlanStage] = []
+    for stage in STAGE_ORDER:
+        selected_required_ids = [
+            action_id
+            for action_id in ranked
+            if approved[action_id].stage == stage and approved[action_id].required
+        ]
+        missing_required_ids = [
+            item.id
+            for item in catalog
+            if item.stage == stage and item.required and item.id not in selected
+        ]
+        selected_optional_ids = [
+            action_id
+            for action_id in ranked
+            if approved[action_id].stage == stage and not approved[action_id].required
+        ]
+        stage_ids = (
+            selected_required_ids
+            + missing_required_ids
+            + selected_optional_ids
         )
-        for selection in selection_list
+        stages.append(
+            PlanStage(
+                key=stage,
+                title=stage_copy[stage][0],
+                subtitle=stage_copy[stage][1],
+                items=[approved[action_id].as_action_item() for action_id in stage_ids],
+            )
+        )
+    return stages
+
+
+def validate_instruction_ids(
+    instruction_ids: Iterable[str],
+    candidates: list[InstructionCandidate],
+) -> None:
+    """Fail closed unless every requested ranking slot has a unique safe ID."""
+
+    validate_instruction_candidates(candidates)
+    selected = list(instruction_ids)
+    expected_count = min(3, len(candidates))
+    if len(selected) != expected_count:
+        raise ValueError(
+            f"The model must return exactly {expected_count} instruction IDs."
+        )
+
+    approved = {candidate.id for candidate in candidates}
+    seen: set[str] = set()
+    for instruction_id in selected:
+        if instruction_id not in approved:
+            raise ValueError("The model returned an unapproved instruction ID.")
+        if instruction_id in seen:
+            raise ValueError("The model returned a duplicate instruction ID.")
+        seen.add(instruction_id)
+
+
+def validate_instruction_candidates(
+    candidates: list[InstructionCandidate],
+) -> None:
+    """Verify the per-request server catalog before sending or expanding it."""
+
+    if not 1 <= len(candidates) <= 32:
+        raise ValueError("The instruction candidate catalog has an invalid size.")
+    candidate_ids = [candidate.id for candidate in candidates]
+    if len(candidate_ids) != len(set(candidate_ids)):
+        raise ValueError("The instruction candidate catalog contains duplicate IDs.")
+    # Pydantic enforces ID syntax and exact-text size without changing either.
+    for candidate in candidates:
+        candidate.as_prioritized_instruction()
+
+
+def expand_instruction_ids(
+    instruction_ids: Iterable[str],
+    candidates: list[InstructionCandidate],
+) -> list[PrioritizedInstruction]:
+    """Expand validated IDs to exact alert wording without model-authored prose."""
+
+    selected = list(instruction_ids)
+    validate_instruction_ids(selected, candidates)
+    approved = {candidate.id: candidate for candidate in candidates}
+    return [
+        approved[instruction_id].as_prioritized_instruction()
+        for instruction_id in selected
     ]
 
 

@@ -71,9 +71,7 @@ def create_app(test_config: dict | None = None) -> Flask:
             {
                 "status": "ok",
                 "provider": "featherless" if service.provider_configured else "guided_fallback",
-                "model": os.getenv("FEATHERLESS_MODEL", "Qwen/Qwen3-8B")
-                if service.provider_configured
-                else None,
+                "model": service.provider_model,
             }
         )
 

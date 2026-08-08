@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import unicodedata
 
-from .catalog import build_action_catalog, deterministic_stages
+from .catalog import InstructionCandidate, build_action_catalog, deterministic_stages
 from .models import AlertFacts, PlanStage
 
 
@@ -177,6 +177,7 @@ _INSTRUCTION_TERMS = (
     "drink",
     "monitor",
     "call",
+    "follow",
     # Spanish imperative or explicitly directive forms. Generic nouns such as
     # "evacuación" are intentionally excluded.
     "evacue",
@@ -223,6 +224,49 @@ def _split_sentences(text: str) -> list[str]:
     """Split alerts without breaking Spanish ``p. m.``/``a. m.`` times."""
 
     return re.split(r"(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÜÑ¿¡])", text)
+
+
+def _is_instruction_sentence(sentence: str) -> bool:
+    folded = _fold_for_matching(sentence)
+    return any(
+        re.search(rf"(?<!\w){re.escape(term)}(?!\w)", folded)
+        for term in _INSTRUCTION_TERMS
+    )
+
+
+def build_instruction_candidates(alert_text: str) -> list[InstructionCandidate]:
+    """Tokenize exact directive sentences into stable, model-safe references.
+
+    Candidate text is trimmed only at its outer whitespace boundary. It is not
+    paraphrased, translated, truncated, or otherwise normalized. Short ordinal
+    IDs are deterministic within the request and materially easier for smaller
+    models to copy exactly than hash-heavy identifiers. Per-request validation
+    prevents an ID from referring to wording outside its current catalog.
+    Exact duplicate sentences are offered only once.
+    """
+
+    candidates: list[InstructionCandidate] = []
+    seen_text: set[str] = set()
+    for raw_line in alert_text.splitlines():
+        for sentence in _split_sentences(raw_line.strip()):
+            exact_text = sentence.strip()
+            if (
+                not exact_text
+                or exact_text in seen_text
+                or not _is_instruction_sentence(exact_text)
+            ):
+                continue
+            seen_text.add(exact_text)
+            ordinal = len(candidates) + 1
+            candidates.append(
+                InstructionCandidate(
+                    id=f"instruction.{ordinal:02d}",
+                    text=exact_text,
+                )
+            )
+            if len(candidates) == 32:
+                return candidates
+    return candidates
 
 
 def _extract_location(alert_text: str) -> tuple[str | None, bool]:
@@ -273,10 +317,7 @@ def extract_facts(alert_text: str, hazard_key: str, language: str = "en") -> Ale
     instructions = [
         sentence.strip()[:220]
         for sentence in sentence_candidates
-        if any(
-            re.search(rf"(?<!\w){re.escape(term)}(?!\w)", _fold_for_matching(sentence))
-            for term in _INSTRUCTION_TERMS
-        )
+        if _is_instruction_sentence(sentence)
     ][:4]
 
     hazard_labels = (

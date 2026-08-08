@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from creekready.catalog import STAGE_ORDER
-from creekready.provider import ProviderPayload, StageSelection
+from creekready.catalog import STAGE_ORDER, action_rank_target
+from creekready.provider import ProviderPayload
 from creekready.service import PlanningService
 
 
@@ -22,20 +22,16 @@ class SuccessfulProvider:
     def create_payload(self, **kwargs) -> ProviderPayload:
         self.calls.append(kwargs)
         catalog = kwargs["catalog"]
+        instruction_candidates = kwargs["instruction_candidates"]
         return ProviderPayload(
-            stages=[
-                StageSelection(
-                    key="now",
-                    action_ids=[item.id for item in catalog if item.stage == "now"],
-                ),
-                StageSelection(
-                    key="next",
-                    action_ids=[item.id for item in catalog if item.stage == "next"],
-                ),
-                StageSelection(
-                    key="worse",
-                    action_ids=[item.id for item in catalog if item.stage == "worse"],
-                ),
+            prioritized_instruction_ids=[
+                candidate.id
+                for candidate in instruction_candidates[
+                    : min(3, len(instruction_candidates))
+                ]
+            ],
+            ranked_action_ids=[
+                item.id for item in catalog[: action_rank_target(catalog)]
             ],
         )
 
@@ -55,24 +51,34 @@ class InvalidSelectionProvider:
 
     def create_payload(self, **kwargs):
         catalog = kwargs["catalog"]
-        ids_by_stage = {
-            stage: [item.id for item in catalog if item.stage == stage]
-            for stage in STAGE_ORDER
-        }
+        instruction_candidates = kwargs["instruction_candidates"]
+        ranked_action_ids = [
+            item.id for item in catalog[: action_rank_target(catalog)]
+        ]
         if self.kind == "unknown":
-            ids_by_stage["now"].append("attacker.unapproved_action")
+            ranked_action_ids[-1] = "attacker.unapproved_action"
         elif self.kind == "duplicate":
-            ids_by_stage["now"].append(ids_by_stage["now"][0])
-        elif self.kind == "wrong_stage":
-            ids_by_stage["now"].append(ids_by_stage["next"][0])
-        return ProviderPayload(
-            stages=[
-                StageSelection(
-                    key=stage,
-                    action_ids=ids_by_stage[stage],
-                )
-                for stage in STAGE_ORDER
+            ranked_action_ids[-1] = ranked_action_ids[0]
+        elif self.kind == "short":
+            ranked_action_ids.pop()
+        prioritized_instruction_ids = [instruction_candidates[0].id]
+        if self.kind == "instruction_unknown":
+            prioritized_instruction_ids = ["alert.instruction.99.deadbeefdead"]
+        elif self.kind == "instruction_duplicate":
+            prioritized_instruction_ids = [
+                instruction_candidates[0].id,
+                instruction_candidates[0].id,
             ]
+        elif self.kind == "instruction_excess":
+            prioritized_instruction_ids = [
+                instruction_candidates[0].id,
+                instruction_candidates[0].id,
+                instruction_candidates[0].id,
+                instruction_candidates[0].id,
+            ]
+        return ProviderPayload(
+            prioritized_instruction_ids=prioritized_instruction_ids,
+            ranked_action_ids=ranked_action_ids,
         )
 
 
@@ -111,8 +117,8 @@ def test_frontend_assets_are_served_with_explicit_featherless_disclosure(client)
     assert script.status_code == 200
     assert styles.status_code == 200
     assert favicon.status_code == 200
-    assert b"Sends this alert to Featherless" in page.data
-    assert "Envía este aviso a Featherless".encode() in script.data
+    assert b"Sends extracted alert instructions" in page.data
+    assert "Envía a Featherless las instrucciones extraídas".encode() in script.data
     assert b"Featherless AI assist configured" in script.data
     assert b"Featherless planner available" not in script.data
 
@@ -152,6 +158,22 @@ def test_health_reports_configured_provider_and_model(app_factory, monkeypatch):
         "model": "test/model",
     }
     assert provider.calls == []
+
+
+def test_blank_model_environment_uses_and_reports_default(app_factory, monkeypatch):
+    monkeypatch.setenv("FEATHERLESS_API_KEY", "test-key")
+    monkeypatch.setenv("FEATHERLESS_MODEL", "   ")
+
+    service = PlanningService.from_environment()
+    app = app_factory(service)
+    response = app.test_client().get("/api/health")
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "status": "ok",
+        "provider": "featherless",
+        "model": "Qwen/Qwen3-8B",
+    }
 
 
 @pytest.mark.parametrize(
@@ -256,16 +278,28 @@ def test_configured_provider_success_is_returned_without_network(app_factory):
     assert response.status_code == 200
     result = response.get_json()
     assert result["mode"] == "featherless"
+    assert result["ai_trace"]["provider"] == "featherless"
+    assert result["ai_trace"]["instruction_candidate_count"] >= 1
+    assert result["ai_trace"]["action_candidate_count"] == 5
+    assert result["ai_trace"]["model_ranked_action_count"] == 5
+    assert result["ai_trace"]["required_action_count"] == 4
+    assert result["ai_trace"]["rendered_action_count"] == sum(
+        len(stage["items"]) for stage in result["stages"]
+    )
+    assert all(
+        instruction["text"] in FLOOD_ALERT
+        for instruction in result["ai_trace"]["prioritized_instructions"]
+    )
     assert result["facts"]["location"] == "Cedar Creek, Texas"
     assert result["household_summary"] == "Plan adjusted for: pet."
-    assert "only ranked pre-approved" in result["limitations"][0]
+    assert "prioritized exact alert-instruction IDs" in result["limitations"][0]
     assert [stage["key"] for stage in result["stages"]] == list(STAGE_ORDER)
     assert "household.next.pet" in {
         item["id"] for stage in result["stages"] for item in stage["items"]
     }
     assert len(provider.calls) == 1
     call = provider.calls[0]
-    assert call["alert_text"] == FLOOD_ALERT
+    assert "alert_text" not in call
     assert call["needs"] == ["pet"]
     assert call["language"] == "en"
     assert {source.id for source in call["sources"]} == {
@@ -277,6 +311,8 @@ def test_configured_provider_success_is_returned_without_network(app_factory):
         "flood.now.avoid_water",
         "household.next.pet",
     }
+    assert call["instruction_candidates"]
+    assert all(candidate.text in FLOOD_ALERT for candidate in call["instruction_candidates"])
 
 
 def test_use_ai_false_skips_configured_provider_and_stays_local(app_factory):
@@ -291,6 +327,7 @@ def test_use_ai_false_skips_configured_provider_and_stays_local(app_factory):
     assert response.status_code == 200
     result = response.get_json()
     assert result["mode"] == "guided_fallback"
+    assert result["ai_trace"] is None
     assert "turned off for this request" in result["limitations"][0]
     assert provider.calls == []
 
@@ -307,12 +344,13 @@ def test_configured_provider_failure_uses_bounded_fallback(app_factory):
     assert response.status_code == 200
     result = response.get_json()
     assert result["mode"] == "guided_fallback"
+    assert result["ai_trace"] is None
     assert result["facts"]["hazard"] == "Flood or flash flood"
     assert "could not be validated" in result["limitations"][0]
     assert provider.calls == 1
 
 
-@pytest.mark.parametrize("kind", ["unknown", "duplicate", "wrong_stage"])
+@pytest.mark.parametrize("kind", ["unknown", "duplicate", "short"])
 def test_invalid_provider_ids_fail_closed_to_bounded_fallback(app_factory, kind):
     app = app_factory(PlanningService(InvalidSelectionProvider(kind)))
 
@@ -324,6 +362,25 @@ def test_invalid_provider_ids_fail_closed_to_bounded_fallback(app_factory, kind)
     result = response.get_json()
     assert result["mode"] == "guided_fallback"
     assert "attacker.unapproved_action" not in json.dumps(result)
+    assert "could not be validated" in result["limitations"][0]
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["instruction_unknown", "instruction_duplicate", "instruction_excess"],
+)
+def test_invalid_provider_instruction_ids_fail_closed(app_factory, kind):
+    app = app_factory(PlanningService(InvalidSelectionProvider(kind)))
+
+    response = app.test_client().post(
+        "/api/plan", json={"alert_text": FLOOD_ALERT, "language": "en"}
+    )
+
+    assert response.status_code == 200
+    result = response.get_json()
+    assert result["mode"] == "guided_fallback"
+    assert result["ai_trace"] is None
+    assert "deadbeefdead" not in json.dumps(result)
     assert "could not be validated" in result["limitations"][0]
 
 
@@ -348,6 +405,43 @@ def test_ai_mode_preserves_all_five_household_needs(app_factory):
         item["id"] for stage in result["stages"] for item in stage["items"]
     }
     assert {f"household.next.{need}" for need in needs} <= returned_ids
+
+
+def test_same_alert_with_different_needs_changes_only_vetted_action_surface(
+    app_factory,
+):
+    provider = SuccessfulProvider()
+    app = app_factory(PlanningService(provider))
+    plan_without_need = app.test_client().post(
+        "/api/plan",
+        json={"alert_text": FLOOD_ALERT, "language": "en"},
+    ).get_json()
+    plan_with_pet = app.test_client().post(
+        "/api/plan",
+        json={
+            "alert_text": FLOOD_ALERT,
+            "household_needs": ["pet"],
+            "language": "en",
+        },
+    ).get_json()
+
+    assert (
+        plan_without_need["ai_trace"]["prioritized_instructions"]
+        == plan_with_pet["ai_trace"]["prioritized_instructions"]
+    )
+    assert (
+        plan_with_pet["ai_trace"]["model_ranked_action_count"]
+        == plan_without_need["ai_trace"]["model_ranked_action_count"] + 1
+    )
+    assert (
+        plan_with_pet["ai_trace"]["action_candidate_count"]
+        == plan_without_need["ai_trace"]["action_candidate_count"] + 1
+    )
+    assert "household.next.pet" in {
+        item["id"]
+        for stage in plan_with_pet["stages"]
+        for item in stage["items"]
+    }
 
 
 @pytest.mark.parametrize(

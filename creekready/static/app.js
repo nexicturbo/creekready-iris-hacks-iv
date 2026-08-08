@@ -2,6 +2,13 @@
 
 const copy = {
   en: {
+    pageTitle: "CreekReady | Turn alerts into action",
+    homeLabel: "CreekReady home",
+    safeguardsLabel: "CreekReady safeguards",
+    routeLabel: "How CreekReady works",
+    planToolsLabel: "Plan tools",
+    stagesLabel: "Staged action plan",
+    emergencyLabel: "Emergency reminder",
     skip: "Skip to the planner",
     checking: "Checking planner…",
     readyAI: "Featherless AI assist configured",
@@ -41,13 +48,29 @@ const copy = {
     needVehicle: "No vehicle",
     languageLabel: "Plan language",
     aiToggleTitle: "Featherless AI assist",
-    aiToggleText: "Sends this alert to Featherless. Turn off to keep it on this CreekReady server.",
+    aiToggleText: "Sends extracted alert instructions, selected needs, and a vetted action list to Featherless. Turn off to keep this request on the CreekReady server.",
     submit: "Build my action map",
     building: "Building your action map…",
     errorTitle: "We couldn’t build that plan.",
     loading: "Reading the alert, checking sources, and organizing next steps…",
     resultsEyebrow: "Your action map",
     resultsTitle: "Read now. Prepare next.",
+    trustArchitectureLabel: "Grounded by design",
+    trustArchitectureTitle: "AI is bounded here.",
+    trustFactTitle: "Alert facts",
+    trustFactText: "Extracted deterministically from the alert you pasted",
+    trustGuidanceTitle: "Guidance",
+    trustGuidanceText: "Drawn from a vetted, source-linked catalog",
+    trustAiTitle: "Featherless",
+    trustAiText: "Prioritizes exact alert instruction IDs and approved action IDs—authors neither",
+    trustFallbackTitle: "Fail-safe",
+    trustFallbackText: "Invalid or unavailable AI triggers a deterministic fallback",
+    aiReceiptLabel: "Bounded AI receipt",
+    aiReceiptTitle: "See the exact alert wording Featherless prioritized",
+    aiReceiptSummary: "Prioritized {selected} of {instructionCandidates} exact alert instructions and ranked {ranked} of {actionCandidates} vetted actions.",
+    aiReceiptServerSummary: "CreekReady retained all {required} required actions and rendered {rendered} actions total.",
+    aiReceiptExactLabel: "Exact alert wording, unchanged",
+    aiReceiptTextTitle: "FEATHERLESS SELECTION RECEIPT",
     copy: "Copy plan",
     read: "Read aloud",
     stopReading: "Stop reading",
@@ -68,6 +91,8 @@ const copy = {
     footer: "A clarity tool for the moments between alert and action.",
     shortAlert: "Paste at least 13 words from the official alert, including its place, time, or instructions.",
     networkError: "The planner could not be reached. Check your connection and try again.",
+    timeoutError: "The planner took too long to respond. Your alert is still here—please try again.",
+    invalidResponse: "The planner returned an incomplete plan. Please try again.",
     genericError: "Something went wrong while building the plan. Please try again.",
     copied: "Plan copied.",
     copyFailed: "Copy failed. Select the plan text and try again.",
@@ -84,7 +109,7 @@ const copy = {
     stage: "Stage",
     source: "source",
     sources: "sources",
-    openSource: "Open official source ↗",
+    openSource: "Open official source (new tab) ↗",
     planTitle: "CreekReady household action map",
     planFacts: "ALERT FACTS",
     planSources: "SOURCES",
@@ -93,6 +118,13 @@ const copy = {
     sourceLabel: "Sources"
   },
   es: {
+    pageTitle: "CreekReady | Convierta avisos en acción",
+    homeLabel: "Inicio de CreekReady",
+    safeguardsLabel: "Protecciones de CreekReady",
+    routeLabel: "Cómo funciona CreekReady",
+    planToolsLabel: "Herramientas del plan",
+    stagesLabel: "Plan de acción por etapas",
+    emergencyLabel: "Recordatorio de emergencia",
     skip: "Ir al planificador",
     checking: "Verificando el planificador…",
     readyAI: "Asistencia de Featherless configurada",
@@ -132,13 +164,29 @@ const copy = {
     needVehicle: "Sin vehículo",
     languageLabel: "Idioma del plan",
     aiToggleTitle: "Asistencia de Featherless AI",
-    aiToggleText: "Envía este aviso a Featherless. Desactive la opción para mantenerlo en este servidor de CreekReady.",
+    aiToggleText: "Envía a Featherless las instrucciones extraídas del aviso, las necesidades seleccionadas y una lista verificada de acciones. Desactive la opción para mantener esta solicitud en el servidor de CreekReady.",
     submit: "Crear mi mapa de acción",
     building: "Creando su mapa de acción…",
     errorTitle: "No pudimos crear ese plan.",
     loading: "Leyendo el aviso, revisando fuentes y organizando los próximos pasos…",
     resultsEyebrow: "Su mapa de acción",
     resultsTitle: "Lea ahora. Prepárese después.",
+    trustArchitectureLabel: "Basado en evidencia por diseño",
+    trustArchitectureTitle: "Aquí, la IA tiene límites.",
+    trustFactTitle: "Hechos del aviso",
+    trustFactText: "Extraídos de forma determinista del aviso que usted pegó",
+    trustGuidanceTitle: "Orientación",
+    trustGuidanceText: "Proviene de un catálogo verificado con fuentes",
+    trustAiTitle: "Featherless",
+    trustAiText: "Prioriza identificadores de instrucciones exactas y acciones aprobadas; no redacta ninguna",
+    trustFallbackTitle: "Protección",
+    trustFallbackText: "Una IA inválida o no disponible activa el modo determinista",
+    aiReceiptLabel: "Recibo de IA limitada",
+    aiReceiptTitle: "Vea el texto exacto del aviso que Featherless priorizó",
+    aiReceiptSummary: "Priorizó {selected} de {instructionCandidates} instrucciones exactas y ordenó {ranked} de {actionCandidates} acciones verificadas.",
+    aiReceiptServerSummary: "CreekReady conservó las {required} acciones obligatorias y mostró {rendered} acciones en total.",
+    aiReceiptExactLabel: "Texto exacto del aviso, sin cambios",
+    aiReceiptTextTitle: "RECIBO DE SELECCIÓN DE FEATHERLESS",
     copy: "Copiar plan",
     read: "Leer en voz alta",
     stopReading: "Detener lectura",
@@ -159,6 +207,8 @@ const copy = {
     footer: "Una herramienta de claridad para los momentos entre aviso y acción.",
     shortAlert: "Pegue al menos 13 palabras del aviso oficial e incluya el lugar, horario o instrucciones.",
     networkError: "No se pudo conectar con el planificador. Revise su conexión e inténtelo de nuevo.",
+    timeoutError: "El planificador tardó demasiado. Su aviso sigue aquí; inténtelo de nuevo.",
+    invalidResponse: "El planificador devolvió un plan incompleto. Inténtelo de nuevo.",
     genericError: "Ocurrió un problema al crear el plan. Inténtelo de nuevo.",
     copied: "Plan copiado.",
     copyFailed: "No se pudo copiar. Seleccione el texto del plan e inténtelo de nuevo.",
@@ -175,7 +225,7 @@ const copy = {
     stage: "Etapa",
     source: "fuente",
     sources: "fuentes",
-    openSource: "Abrir fuente oficial ↗",
+    openSource: "Abrir fuente oficial (pestaña nueva) ↗",
     planTitle: "Mapa de acción del hogar de CreekReady",
     planFacts: "HECHOS DEL AVISO",
     planSources: "FUENTES",
@@ -202,8 +252,13 @@ const state = {
   language: "en",
   currentPlan: null,
   speaking: false,
-  healthProvider: null
+  speechGeneration: 0,
+  healthProvider: null,
+  isLoading: false
 };
+
+const HEALTH_TIMEOUT_MS = 6000;
+const PLAN_TIMEOUT_MS = 45000;
 
 const form = document.querySelector("#plan-form");
 const alertText = document.querySelector("#alert-text");
@@ -222,6 +277,13 @@ function t(key) {
   return copy[state.language][key] || copy.en[key] || key;
 }
 
+function formatT(key, values) {
+  return Object.entries(values).reduce(
+    (message, [name, value]) => message.replaceAll(`{${name}}`, String(value)),
+    t(key)
+  );
+}
+
 function makeElement(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;
@@ -232,18 +294,23 @@ function makeElement(tag, className, text) {
 function translatePage() {
   state.language = languageSelect.value === "es" ? "es" : "en";
   document.documentElement.lang = state.language;
+  document.title = t("pageTitle");
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.textContent = t(element.dataset.i18n);
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
     element.placeholder = t(element.dataset.i18nPlaceholder);
   });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
   updateHealthLabel();
-  if (!state.speaking) readButton.querySelector("span:last-child").textContent = t("read");
+  updateReadButton();
 }
 
 function updateCount() {
-  document.querySelector("#alert-count").textContent = `${alertText.value.length.toLocaleString()} / 8,000`;
+  const locale = state.language === "es" ? "es-US" : "en-US";
+  document.querySelector("#alert-count").textContent = `${alertText.value.length.toLocaleString(locale)} / 8,000`;
 }
 
 function updateHealthLabel() {
@@ -259,18 +326,28 @@ function updateHealthLabel() {
     pill.classList.remove("is-ready");
     label.textContent = t("unavailable");
   } else {
+    pill.classList.remove("is-ready");
     label.textContent = t("checking");
   }
 }
 
 async function checkHealth() {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
   try {
-    const response = await fetch("/api/health", { headers: { Accept: "application/json" } });
+    const response = await fetch("/api/health", {
+      headers: { Accept: "application/json" },
+      signal: controller.signal
+    });
     if (!response.ok) throw new Error("health");
     const data = await response.json();
-    state.healthProvider = data.provider;
+    state.healthProvider = ["featherless", "guided_fallback"].includes(data.provider)
+      ? data.provider
+      : "error";
   } catch (_error) {
     state.healthProvider = "error";
+  } finally {
+    window.clearTimeout(timeout);
   }
   updateHealthLabel();
 }
@@ -289,10 +366,145 @@ function clearError() {
 }
 
 function setLoading(isLoading) {
+  state.isLoading = isLoading;
   form.setAttribute("aria-busy", String(isLoading));
   loadingPanel.hidden = !isLoading;
-  submitButton.disabled = isLoading;
+  Array.from(form.elements).forEach((control) => {
+    if (!(control instanceof HTMLElement)) return;
+    if (isLoading) {
+      control.dataset.wasDisabled = String(control.disabled);
+      control.disabled = true;
+    } else if (control.dataset.wasDisabled !== undefined) {
+      control.disabled = control.dataset.wasDisabled === "true";
+      delete control.dataset.wasDisabled;
+    }
+  });
   submitLabel.textContent = isLoading ? t("building") : t("submit");
+}
+
+function prefersReducedMotion() {
+  return typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function scrollToElement(element) {
+  element.scrollIntoView({
+    behavior: prefersReducedMotion() ? "auto" : "smooth",
+    block: "start"
+  });
+}
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNonemptyText(value, maxLength) {
+  return typeof value === "string"
+    && value.trim().length > 0
+    && value.length <= maxLength;
+}
+
+function isValidPlan(plan) {
+  if (!(isRecord(plan)
+    && ["featherless", "guided_fallback"].includes(plan.mode)
+    && isNonemptyText(plan.generated_at, 80)
+    && !Number.isNaN(new Date(plan.generated_at).getTime())
+    && isNonemptyText(plan.disclaimer, 500)
+    && isNonemptyText(plan.household_summary, 240)
+    && isRecord(plan.facts)
+    && isNonemptyText(plan.facts.headline, 180)
+    && isNonemptyText(plan.facts.hazard, 80)
+    && isNonemptyText(plan.facts.location, 160)
+    && isNonemptyText(plan.facts.time_window, 160)
+    && ["high", "medium", "low"].includes(plan.facts.confidence)
+    && Array.isArray(plan.facts.official_instructions)
+    && plan.facts.official_instructions.length <= 4
+    && plan.facts.official_instructions.every((item) => isNonemptyText(item, 220))
+    && Array.isArray(plan.stages)
+    && plan.stages.length === 3
+    && plan.stages.map((stage) => stage?.key).join(",") === "now,next,worse"
+    && plan.stages.every((stage) => isRecord(stage)
+      && isNonemptyText(stage.title, 80)
+      && isNonemptyText(stage.subtitle, 140)
+      && Array.isArray(stage.items)
+      && stage.items.length >= 1
+      && stage.items.length <= 8
+      && stage.items.every((item) => isRecord(item)
+        && typeof item.id === "string"
+        && /^[a-z0-9_.-]{1,80}$/.test(item.id)
+        && isNonemptyText(item.action, 220)
+        && isNonemptyText(item.reason, 240)
+        && Array.isArray(item.source_ids)
+        && item.source_ids.length >= 1
+        && item.source_ids.length <= 3
+        && item.source_ids.every((sourceId) => isNonemptyText(sourceId, 80))
+        && new Set(item.source_ids).size === item.source_ids.length))
+    && Array.isArray(plan.sources)
+    && plan.sources.length >= 1
+    && plan.sources.length <= 5
+    && plan.sources.every((source) => isRecord(source)
+      && isNonemptyText(source.id, 80)
+      && isNonemptyText(source.title, 240)
+      && isNonemptyText(source.agency, 160)
+      && typeof source.url === "string"
+      && source.url.length <= 2048
+      && isNonemptyText(source.excerpt, 500))
+    && Array.isArray(plan.limitations)
+    && plan.limitations.length >= 1
+    && plan.limitations.length <= 5
+    && plan.limitations.every((item) => isNonemptyText(item, 500)))) return false;
+
+  const sourceIds = plan.sources.map((source) => source.id);
+  const renderedActionIds = plan.stages.flatMap(
+    (stage) => stage.items.map((item) => item.id)
+  );
+  if (new Set(sourceIds).size !== sourceIds.length
+    || new Set(renderedActionIds).size !== renderedActionIds.length
+    || plan.stages.some((stage) => stage.items.some((item) =>
+      item.source_ids.some((sourceId) => !sourceIds.includes(sourceId))))) return false;
+
+  if (plan.mode === "guided_fallback") return plan.ai_trace == null;
+  const trace = plan.ai_trace;
+  if (!(isRecord(trace)
+    && trace.provider === "featherless"
+    && Number.isInteger(trace.instruction_candidate_count)
+    && trace.instruction_candidate_count >= 1
+    && trace.instruction_candidate_count <= 32
+    && Number.isInteger(trace.action_candidate_count)
+    && trace.action_candidate_count >= 3
+    && trace.action_candidate_count <= 9
+    && Number.isInteger(trace.model_ranked_action_count)
+    && trace.model_ranked_action_count >= 1
+    && trace.model_ranked_action_count <= 5
+    && Number.isInteger(trace.required_action_count)
+    && trace.required_action_count >= 3
+    && trace.required_action_count <= 8
+    && Number.isInteger(trace.rendered_action_count)
+    && trace.rendered_action_count >= 3
+    && trace.rendered_action_count <= 9
+    && Array.isArray(trace.prioritized_instructions)
+    && trace.prioritized_instructions.length >= 1
+    && trace.prioritized_instructions.length <= 3
+    && trace.prioritized_instructions.every((item) => isRecord(item)
+      && typeof item.id === "string"
+      && /^[a-z0-9_.-]{1,80}$/.test(item.id)
+      && typeof item.text === "string"
+      && item.text.trim().length > 0
+      && alertText.value.includes(item.text)))) return false;
+
+  const instructionIds = trace.prioritized_instructions.map((item) => item.id);
+  const renderedActionCount = plan.stages.reduce(
+    (count, stage) => count + stage.items.length,
+    0
+  );
+  return new Set(instructionIds).size === instructionIds.length
+    && trace.prioritized_instructions.length === Math.min(3, trace.instruction_candidate_count)
+    && trace.model_ranked_action_count === Math.min(5, trace.action_candidate_count)
+    && trace.required_action_count <= trace.rendered_action_count
+    && trace.model_ranked_action_count <= trace.rendered_action_count
+    && trace.rendered_action_count <= trace.action_candidate_count
+    && trace.rendered_action_count <= trace.model_ranked_action_count + trace.required_action_count
+    && trace.rendered_action_count === renderedActionCount;
 }
 
 function sourceDomId(sourceId) {
@@ -372,6 +584,7 @@ function renderSources(sources) {
   safeSources.forEach((source) => {
     const card = makeElement("article", "source-card");
     card.id = sourceDomId(source.id);
+    card.tabIndex = -1;
     card.append(makeElement("span", "source-id", source.id || ""));
     card.append(makeElement("h4", "", source.title || ""));
     card.append(makeElement("p", "source-agency", source.agency || ""));
@@ -395,7 +608,47 @@ function renderLimitations(limitations) {
   (Array.isArray(limitations) ? limitations : []).forEach((item) => list.append(makeElement("li", "", item)));
 }
 
+function renderAiReceipt(trace) {
+  const receipt = document.querySelector("#ai-receipt");
+  const list = document.querySelector("#ai-instruction-list");
+  list.replaceChildren();
+  receipt.hidden = !trace;
+  if (!trace) return;
+
+  document.querySelector("#ai-receipt-summary").textContent = formatT(
+    "aiReceiptSummary",
+    {
+      selected: trace.prioritized_instructions.length,
+      instructionCandidates: trace.instruction_candidate_count,
+      ranked: trace.model_ranked_action_count,
+      actionCandidates: trace.action_candidate_count
+    }
+  );
+  document.querySelector("#ai-receipt-server-summary").textContent = formatT(
+    "aiReceiptServerSummary",
+    {
+      required: trace.required_action_count,
+      rendered: trace.rendered_action_count
+    }
+  );
+  trace.prioritized_instructions.forEach((instruction, index) => {
+    const item = makeElement("li", "ai-instruction");
+    item.append(makeElement("span", "ai-instruction-rank", String(index + 1).padStart(2, "0")));
+    const content = makeElement("div", "ai-instruction-copy");
+    content.append(makeElement("blockquote", "", instruction.text));
+    content.append(makeElement("code", "", instruction.id));
+    item.append(content);
+    list.append(item);
+  });
+}
+
 function renderPlan(plan) {
+  if (state.speaking && "speechSynthesis" in window) {
+    state.speechGeneration += 1;
+    window.speechSynthesis.cancel();
+    state.speaking = false;
+    updateReadButton();
+  }
   state.currentPlan = plan;
   const modeBadge = document.querySelector("#mode-badge");
   const isAi = plan.mode === "featherless";
@@ -416,19 +669,27 @@ function renderPlan(plan) {
   renderStages(plan.stages);
   renderSources(plan.sources);
   renderLimitations(plan.limitations);
+  renderAiReceipt(isAi ? plan.ai_trace : null);
 
   results.hidden = false;
-  document.querySelector("#results-title").focus({ preventScroll: true });
-  results.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 }
 
-function planAsText(plan) {
-  const lines = [t("planTitle"), "", plan.disclaimer || "", "", t("planFacts")];
-  lines.push(plan.facts?.headline || "");
-  lines.push(`${t("hazard")}: ${plan.facts?.hazard || ""}`);
-  lines.push(`${t("location")}: ${plan.facts?.location || ""}`);
-  lines.push(`${t("timeWindow")}: ${plan.facts?.time_window || ""}`, "");
-  lines.push(plan.household_summary || "", "");
+function focusResults() {
+  const resultsTitle = document.querySelector("#results-title");
+  resultsTitle.focus({ preventScroll: true });
+  scrollToElement(results);
+}
+
+function planAsText(plan, options = {}) {
+  const includeTechnicalIds = options.includeTechnicalIds !== false;
+  const lines = [
+    t("planTitle"),
+    "",
+    plan.disclaimer || "",
+    "",
+    plan.household_summary || "",
+    ""
+  ];
 
   (plan.stages || []).forEach((stage) => {
     lines.push(`${stage.title}: ${stage.subtitle}`);
@@ -439,6 +700,31 @@ function planAsText(plan) {
     });
     lines.push("");
   });
+
+  lines.push(t("planFacts"));
+  lines.push(plan.facts?.headline || "");
+  lines.push(`${t("hazard")}: ${plan.facts?.hazard || ""}`);
+  lines.push(`${t("location")}: ${plan.facts?.location || ""}`);
+  lines.push(`${t("timeWindow")}: ${plan.facts?.time_window || ""}`, "");
+
+  if (plan.ai_trace) {
+    lines.push(t("aiReceiptTextTitle"));
+    lines.push(formatT("aiReceiptSummary", {
+      selected: plan.ai_trace.prioritized_instructions.length,
+      instructionCandidates: plan.ai_trace.instruction_candidate_count,
+      ranked: plan.ai_trace.model_ranked_action_count,
+      actionCandidates: plan.ai_trace.action_candidate_count
+    }));
+    lines.push(formatT("aiReceiptServerSummary", {
+      required: plan.ai_trace.required_action_count,
+      rendered: plan.ai_trace.rendered_action_count
+    }));
+    plan.ai_trace.prioritized_instructions.forEach((instruction, index) => {
+      const idSuffix = includeTechnicalIds ? ` [${instruction.id}]` : "";
+      lines.push(`${index + 1}. “${instruction.text}”${idSuffix}`);
+    });
+    lines.push("");
+  }
 
   lines.push(t("planSources"));
   (plan.sources || []).forEach((source) => lines.push(`- ${source.id}: ${source.title} — ${source.agency}${source.url ? ` (${source.url})` : ""}`));
@@ -454,6 +740,7 @@ async function copyPlan() {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(text);
     } else {
+      const previouslyFocused = document.activeElement;
       const helper = makeElement("textarea", "clipboard-helper");
       helper.value = text;
       helper.setAttribute("readonly", "");
@@ -461,6 +748,9 @@ async function copyPlan() {
       helper.select();
       const copied = document.execCommand("copy");
       helper.remove();
+      if (previouslyFocused instanceof HTMLElement) {
+        previouslyFocused.focus({ preventScroll: true });
+      }
       if (!copied) throw new Error("copy");
     }
     toolStatus.textContent = t("copied");
@@ -471,6 +761,8 @@ async function copyPlan() {
 
 function updateReadButton() {
   readButton.querySelector("span:last-child").textContent = t(state.speaking ? "stopReading" : "read");
+  readButton.setAttribute("aria-pressed", String(state.speaking));
+  if (!("speechSynthesis" in window)) readButton.title = t("readUnsupported");
 }
 
 function readPlan() {
@@ -479,6 +771,7 @@ function readPlan() {
     return;
   }
   if (state.speaking) {
+    state.speechGeneration += 1;
     window.speechSynthesis.cancel();
     state.speaking = false;
     updateReadButton();
@@ -486,15 +779,22 @@ function readPlan() {
     return;
   }
 
-  const utterance = new SpeechSynthesisUtterance(planAsText(state.currentPlan));
+  const utterance = new SpeechSynthesisUtterance(planAsText(
+    state.currentPlan,
+    { includeTechnicalIds: false }
+  ));
+  const speechGeneration = state.speechGeneration + 1;
+  state.speechGeneration = speechGeneration;
   utterance.lang = state.language === "es" ? "es-MX" : "en-US";
   utterance.rate = 0.95;
   utterance.onend = () => {
+    if (speechGeneration !== state.speechGeneration) return;
     state.speaking = false;
     updateReadButton();
     toolStatus.textContent = "";
   };
   utterance.onerror = () => {
+    if (speechGeneration !== state.speechGeneration) return;
     state.speaking = false;
     updateReadButton();
     toolStatus.textContent = t("readUnsupported");
@@ -508,6 +808,7 @@ function readPlan() {
 
 async function submitPlan(event) {
   event.preventDefault();
+  if (state.isLoading) return;
   clearError();
   toolStatus.textContent = "";
   const text = alertText.value.trim();
@@ -517,6 +818,9 @@ async function submitPlan(event) {
   }
 
   const householdNeeds = Array.from(document.querySelectorAll('input[name="household_needs"]:checked')).map((input) => input.value);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), PLAN_TIMEOUT_MS);
+  let planRendered = false;
   setLoading(true);
   try {
     const response = await fetch("/api/plan", {
@@ -527,17 +831,26 @@ async function submitPlan(event) {
         household_needs: householdNeeds,
         language: state.language,
         use_ai: useAi.checked
-      })
+      }),
+      signal: controller.signal
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || t("genericError"));
+    if (!isValidPlan(data)) throw new Error(t("invalidResponse"));
     renderPlan(data);
+    planRendered = true;
   } catch (error) {
-    const message = error instanceof TypeError ? t("networkError") : (error.message || t("genericError"));
+    const message = error?.name === "AbortError"
+      ? t("timeoutError")
+      : error instanceof TypeError
+        ? t("networkError")
+        : (error.message || t("genericError"));
     showError(message);
   } finally {
+    window.clearTimeout(timeout);
     setLoading(false);
   }
+  if (planRendered) focusResults();
 }
 
 document.querySelectorAll("[data-sample]").forEach((button) => {
@@ -554,20 +867,34 @@ alertText.addEventListener("input", () => {
   if (alertText.hasAttribute("aria-invalid")) clearError();
 });
 
-languageSelect.addEventListener("change", translatePage);
+languageSelect.addEventListener("change", () => {
+  if (state.speaking && "speechSynthesis" in window) {
+    state.speechGeneration += 1;
+    window.speechSynthesis.cancel();
+    state.speaking = false;
+    toolStatus.textContent = "";
+  }
+  translatePage();
+  updateCount();
+});
 form.addEventListener("submit", submitPlan);
 document.querySelector("#copy-plan").addEventListener("click", copyPlan);
 readButton.addEventListener("click", readPlan);
 document.querySelector("#edit-alert").addEventListener("click", () => {
-  document.querySelector("#planner").scrollIntoView({ behavior: "smooth", block: "start" });
+  scrollToElement(document.querySelector("#planner-title"));
   alertText.focus({ preventScroll: true });
   toolStatus.textContent = t("editReady");
 });
 
 if (!("speechSynthesis" in window)) {
   readButton.disabled = true;
-  readButton.title = t("readUnsupported");
 }
+
+window.addEventListener("online", checkHealth);
+window.addEventListener("offline", () => {
+  state.healthProvider = "error";
+  updateHealthLabel();
+});
 
 translatePage();
 updateCount();

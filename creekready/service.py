@@ -7,14 +7,24 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from .catalog import build_action_catalog, expand_selections
-from .fallback import build_fallback_stages, detect_hazard, extract_facts
-from .models import ActionPlan
+from .catalog import (
+    build_action_catalog,
+    build_ranked_stages,
+    expand_instruction_ids,
+)
+from .fallback import (
+    build_fallback_stages,
+    build_instruction_candidates,
+    detect_hazard,
+    extract_facts,
+)
+from .models import AITrace, ActionPlan
 from .provider import FeatherlessPlanner
 from .sources import sources_for
 
 
 ALLOWED_NEEDS = {"children", "older_adult", "pet", "limited_mobility", "no_vehicle"}
+DEFAULT_FEATHERLESS_MODEL = "Qwen/Qwen3-8B"
 logger = logging.getLogger(__name__)
 
 
@@ -50,12 +60,21 @@ class PlanningService:
         api_key = os.getenv("FEATHERLESS_API_KEY", "").strip()
         if not api_key:
             return cls()
-        model = os.getenv("FEATHERLESS_MODEL", "Qwen/Qwen3-8B").strip()
+        model = os.getenv("FEATHERLESS_MODEL", "").strip() or DEFAULT_FEATHERLESS_MODEL
         return cls(FeatherlessPlanner(api_key=api_key, model=model))
 
     @property
     def provider_configured(self) -> bool:
         return self.provider is not None
+
+    @property
+    def provider_model(self) -> str | None:
+        if self.provider is None:
+            return None
+        configured = getattr(self.provider, "model", None)
+        if isinstance(configured, str) and configured.strip():
+            return configured.strip()
+        return os.getenv("FEATHERLESS_MODEL", "").strip() or DEFAULT_FEATHERLESS_MODEL
 
     def create_plan(self, request: PlanRequest) -> ActionPlan:
         hazard_key = detect_hazard(request.alert_text)
@@ -63,6 +82,7 @@ class PlanningService:
         catalog = build_action_catalog(
             hazard_key, request.household_needs, request.language
         )
+        instruction_candidates = build_instruction_candidates(request.alert_text)
         bounded_facts = extract_facts(request.alert_text, hazard_key, request.language)
         generated_at = datetime.now(timezone.utc).isoformat()
         disclaimer = (
@@ -78,11 +98,20 @@ class PlanningService:
         if request.use_ai and self.provider:
             try:
                 payload = self.provider.create_payload(
-                    alert_text=request.alert_text,
                     needs=request.household_needs,
                     language=request.language,
                     sources=sources,
                     catalog=catalog,
+                    instruction_candidates=instruction_candidates,
+                )
+                ranked_stages = build_ranked_stages(
+                    payload.ranked_action_ids,
+                    catalog,
+                    request.language,
+                )
+                prioritized_instructions = expand_instruction_ids(
+                    payload.prioritized_instruction_ids,
+                    instruction_candidates,
                 )
                 return ActionPlan(
                     mode="featherless",
@@ -93,11 +122,21 @@ class PlanningService:
                     # a place, time, or official instruction into this trusted panel.
                     facts=bounded_facts,
                     household_summary=household_summary,
-                    stages=expand_selections(
-                        payload.stages, catalog, request.language
-                    ),
+                    stages=ranked_stages,
                     sources=sources,
                     limitations=self._ai_limitations(request.language),
+                    ai_trace=AITrace(
+                        instruction_candidate_count=len(instruction_candidates),
+                        prioritized_instructions=prioritized_instructions,
+                        action_candidate_count=len(catalog),
+                        model_ranked_action_count=len(payload.ranked_action_ids),
+                        required_action_count=sum(
+                            action.required for action in catalog
+                        ),
+                        rendered_action_count=sum(
+                            len(stage.items) for stage in ranked_stages
+                        ),
+                    ),
                 )
             except Exception as exc:
                 logger.warning(
@@ -138,6 +177,7 @@ class PlanningService:
                     else "Verifique el aviso original para ubicaciones, horarios y cambios exactos."
                 ),
             ],
+            ai_trace=None,
         )
 
     @staticmethod
@@ -167,10 +207,10 @@ class PlanningService:
     def _ai_limitations(language: str) -> list[str]:
         if language == "es":
             return [
-                "Featherless solo ordenó acciones preaprobadas y vinculadas a fuentes; no redactó el texto de las acciones.",
+                "Featherless priorizó identificadores de instrucciones textuales del aviso y ordenó acciones preaprobadas; no redactó ese contenido.",
                 "CreekReady no usa datos en vivo del clima, carreteras o evacuaciones. Verifique el aviso original para conocer cambios.",
             ]
         return [
-            "Featherless only ranked pre-approved, source-linked actions; it did not author the action text.",
+            "Featherless prioritized exact alert-instruction IDs and ranked pre-approved actions; it authored none of that content.",
             "CreekReady does not use live weather, road, or evacuation data. Verify the original alert for changes.",
         ]
