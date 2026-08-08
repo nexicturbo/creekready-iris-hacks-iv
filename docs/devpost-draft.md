@@ -89,7 +89,7 @@ These are future directions, not capabilities of the submitted prototype.
 
 - Category: Machine Learning/AI
 - Additional tags: emergency preparedness, responsible AI, Flask, Featherless, bilingual, accessibility
-- Project status: local prototype; do not mark it deployed unless a public build is later verified
+- Project status: public source repository; local demo verified; do not mark it deployed until a public build is verified
 - Team: Henderson Damian Mejia Gonzales, solo entrant
 - Presentation script: `docs/pitch-script.md`
 - Judge deck: `docs/CreekReady-Iris-Hacks-IV.pptx`
@@ -110,7 +110,7 @@ CreekReady's checked-in guidance links to [NWS Flood Safety](https://www.weather
 
 ## Links and media
 
-- Code: **[ADD PUBLIC OR JUDGE-ACCESSIBLE GITHUB URL]**
+- Code: https://github.com/nexicturbo/creekready-iris-hacks-iv
 - Try it: **[ADD ONLY IF DEPLOYED AND VERIFIED]**
 - Presentation: `docs/CreekReady-Iris-Hacks-IV.pptx` (also upload or link it in the final Devpost form if required)
 - Video: **[ADD ONLY IF REQUIRED, UPLOADED, AND VERIFIED]**
