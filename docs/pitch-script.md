@@ -81,5 +81,6 @@
 
 - **Innovation:** household constraints plus source-bounded structured output, not an open-ended emergency chatbot.
 - **Impact:** bridges the gap between receiving an official warning and preparing a specific household.
+- **Why Featherless is purposeful:** the model resolves the genuinely variable ranking problem across hazard type and household constraints, while the deterministic server owns facts, visible guidance, validation, and fallback. It is a bounded decision component, not a decorative chat layer.
 - **Execution:** conservative local facts, request validation, ID-only provider adapter, catalog/stage/source validation, 99 passing offline tests, verified live Featherless smoke checks, rate limiting, deterministic fallback, and explicit limitations.
 - **Responsible AI:** no prediction, no invented live data, no replacement of official instructions, and no unverified performance claims.
