@@ -118,6 +118,7 @@ CreekReady's checked-in guidance links to [NWS Flood Safety](https://www.weather
 - Editable presentation source: `docs/CreekReady-Iris-Hacks-IV.pptx`
 - Video: **[ADD ONLY IF REQUIRED, UPLOADED, AND VERIFIED]**
 - Cover image: `docs/assets/creekready-cover.png` — generated editorial illustration; it does not depict a live emergency or live conditions.
+- Devpost thumbnail: `docs/assets/creekready-devpost-thumbnail.png` — a 3:2 reframing of the same generated editorial concept, prepared for Devpost's recommended thumbnail ratio.
 - Interface image: `docs/assets/creekready-hero.png` — verified local build with Featherless configured.
 - Desktop product proof: `docs/assets/creekready-desktop-result.png` — clean 16:9 fictional result showing mode, household fit, all three action stages, and source IDs.
 - Result image: `docs/assets/creekready-live-demo.png` — verified fictional-sample result; not a current alert.
