@@ -73,6 +73,7 @@ Copy-Item .env.example .env
 ```dotenv
 FEATHERLESS_API_KEY=
 FEATHERLESS_MODEL=Qwen/Qwen3-8B
+TRUSTED_PROXY_HOPS=0
 ```
 
 Never commit `.env` or an API key. `FEATHERLESS_MODEL` is optional; the value above is the current code default and can be changed to a compatible model available to the account.
@@ -90,6 +91,8 @@ For a Linux production host, the repository includes a non-root `Dockerfile`, `P
 ```text
 gunicorn --config gunicorn.conf.py app:app
 ```
+
+`TRUSTED_PROXY_HOPS` defaults to `0`, so untrusted `X-Forwarded-For` headers cannot change the client address used for rate limiting. When deploying behind a reverse proxy, set it to the exact number of proxy hops controlled by the operator (maximum `10`) only after verifying that the edge replaces incoming forwarding headers. An invalid, negative, or larger value stops startup. CreekReady trusts only `X-Forwarded-For`; forwarded host, protocol, port, and path-prefix headers remain untrusted. The correct hop count is host-specific and is intentionally not assumed here.
 
 ## Demo fixtures
 
@@ -127,7 +130,7 @@ After installing the requirements, run:
 .\.venv\Scripts\python.exe -m pytest -q tests
 ```
 
-Current verified result: **113 tests passed** in the network-free suite. Coverage includes input and size boundaries, provider, fallback, rate-limit, and served-frontend modes, English and Spanish flood/wildfire/heat/unclassified behavior, mixed and expired-alert handling, all supported household needs, Spanish Unicode output, conservative fact extraction and confidence, exact instruction tokenization, provider data minimization, strict flat ID contracts, required-action restoration, prompt-injection-shaped inputs, frontend accessibility/runtime invariants, provider failures and invalid payloads, UTC timestamps, configuration normalization, and security headers.
+Current verified result: **124 tests passed** in the network-free suite. Coverage includes input and size boundaries, provider, fallback, trusted-proxy and rate-limit behavior, and served-frontend modes, English and Spanish flood/wildfire/heat/unclassified behavior, mixed and expired-alert handling, all supported household needs, Spanish Unicode output, conservative fact extraction and confidence, exact instruction tokenization, provider data minimization, strict flat ID contracts, required-action restoration, prompt-injection-shaped inputs, frontend accessibility/runtime invariants, provider failures and invalid payloads, UTC timestamps, configuration normalization, and security headers.
 
 The same suite and dependency check also pass in a clean Python 3.12 environment matching the release container.
 
@@ -141,7 +144,7 @@ The final flattened Featherless contract has also been live-verified with record
 - The model's ranking hint cannot remove required actions: the server restores every omitted required item before any selected optional action.
 - The displayed place, time, and official-instruction facts always come from the conservative deterministic extractor, not model-authored fields.
 - Provider errors and invalid outputs fail closed to the guided fallback.
-- The plan endpoint is rate-limited by the client address observed by Flask to protect the hosted inference path; `PLAN_RATE_LIMIT` can tune the default `12 per minute` policy. The included Gunicorn configuration uses one threaded worker so the default in-memory limit is process-consistent. A multi-worker or reverse-proxy production deployment should configure trusted proxy handling and a shared `RATELIMIT_STORAGE_URI`.
+- The plan endpoint is rate-limited by the client address observed by Flask to protect the hosted inference path; `PLAN_RATE_LIMIT` can tune the default `12 per minute` policy. `TRUSTED_PROXY_HOPS=0` ignores spoofable forwarding headers by default; a reverse-proxy deployment must set the exact verified hop count as described above. The included Gunicorn configuration uses one threaded worker so the default in-memory limit is process-consistent. A multi-worker deployment should configure a shared `RATELIMIT_STORAGE_URI`.
 - Results carry an explicit limitation and retain links to the underlying guidance.
 - CreekReady has no live alert feed, weather feed, map, road status, or emergency-services integration.
 - Submitted alert text is processed in memory and is not persistently stored by the application. With Featherless enabled, parser-selected directive sentences, selected needs/language, and the vetted action catalog are sent to that provider; the raw alert is not sent as a separate field. Because selected sentences can still contain sensitive text, consult the provider's policies and do not paste private information. Users can turn AI assist off per request so the CreekReady server processes it without forwarding anything to Featherless.

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
+from flask import request
 
 from creekready.catalog import STAGE_ORDER, action_rank_target
 from creekready.provider import ProviderPayload
@@ -141,6 +142,120 @@ def test_plan_rate_limit_is_json_and_stops_provider_calls(app_factory):
     assert responses[-1].get_json() == {
         "error": "Too many plan requests. Wait a minute and try again."
     }
+    assert len(provider.calls) == 2
+
+
+def test_forwarded_for_is_ignored_by_default(app_factory):
+    app = app_factory()
+    observed_addresses: list[str | None] = []
+
+    @app.before_request
+    def capture_address():
+        observed_addresses.append(request.remote_addr)
+
+    response = app.test_client().get(
+        "/api/health",
+        headers={"X-Forwarded-For": "203.0.113.10"},
+        environ_overrides={"REMOTE_ADDR": "192.0.2.44"},
+    )
+
+    assert response.status_code == 200
+    assert app.config["TRUSTED_PROXY_HOPS"] == 0
+    assert observed_addresses == ["192.0.2.44"]
+
+
+def test_only_forwarded_for_uses_the_configured_hop_count(app_factory):
+    app = app_factory(TRUSTED_PROXY_HOPS="2")
+    observed_request: dict[str, str | None] = {}
+
+    @app.before_request
+    def capture_request_metadata():
+        observed_request.update(
+            address=request.remote_addr,
+            scheme=request.scheme,
+            host=request.host,
+            script_root=request.script_root,
+        )
+
+    response = app.test_client().get(
+        "/api/health",
+        headers={
+            "X-Forwarded-For": "203.0.113.10, 198.51.100.20",
+            "X-Forwarded-Proto": "https",
+            "X-Forwarded-Host": "spoofed.example",
+            "X-Forwarded-Port": "8443",
+            "X-Forwarded-Prefix": "/spoofed",
+        },
+        environ_overrides={"REMOTE_ADDR": "192.0.2.44"},
+    )
+
+    assert response.status_code == 200
+    assert app.config["TRUSTED_PROXY_HOPS"] == 2
+    assert observed_request == {
+        "address": "203.0.113.10",
+        "scheme": "http",
+        "host": "localhost",
+        "script_root": "",
+    }
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["", "not-a-number", "-1", "1.5", "11", None, True],
+)
+def test_invalid_trusted_proxy_hops_fail_startup(app_factory, value):
+    with pytest.raises(ValueError, match="TRUSTED_PROXY_HOPS"):
+        app_factory(TRUSTED_PROXY_HOPS=value)
+
+
+def test_rate_limit_cannot_be_evaded_with_forwarded_for_by_default(app_factory):
+    provider = SuccessfulProvider()
+    app = app_factory(
+        PlanningService(provider),
+        RATELIMIT_ENABLED=True,
+        PLAN_RATE_LIMIT="1 per minute",
+    )
+    limited_client = app.test_client()
+
+    responses = [
+        limited_client.post(
+            "/api/plan",
+            json={"alert_text": FLOOD_ALERT},
+            headers={"X-Forwarded-For": forwarded_address},
+            environ_overrides={"REMOTE_ADDR": "192.0.2.44"},
+        )
+        for forwarded_address in ("203.0.113.10", "198.51.100.20")
+    ]
+
+    assert [response.status_code for response in responses] == [200, 429]
+    assert len(provider.calls) == 1
+
+
+def test_rate_limit_buckets_use_trusted_forwarded_client_address(app_factory):
+    provider = SuccessfulProvider()
+    app = app_factory(
+        PlanningService(provider),
+        RATELIMIT_ENABLED=True,
+        PLAN_RATE_LIMIT="1 per minute",
+        TRUSTED_PROXY_HOPS=1,
+    )
+    limited_client = app.test_client()
+
+    def submit(forwarded_address: str):
+        return limited_client.post(
+            "/api/plan",
+            json={"alert_text": FLOOD_ALERT},
+            headers={"X-Forwarded-For": forwarded_address},
+            environ_overrides={"REMOTE_ADDR": "192.0.2.44"},
+        )
+
+    responses = [
+        submit("203.0.113.10"),
+        submit("198.51.100.20"),
+        submit("203.0.113.10"),
+    ]
+
+    assert [response.status_code for response in responses] == [200, 200, 429]
     assert len(provider.calls) == 2
 
 

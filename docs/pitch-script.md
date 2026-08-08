@@ -82,5 +82,5 @@
 - **Innovation:** household constraints plus source-bounded structured output, not an open-ended emergency chatbot.
 - **Impact:** bridges the gap between receiving an official warning and preparing a specific household.
 - **Why Featherless is purposeful:** the model performs semantic prioritization over variable English/Spanish alert directives and household-aware action candidates. The deterministic server owns facts, exact visible wording, stage assignment, required actions, validation, and fallback. It is a bounded decision component, not a decorative chat layer.
-- **Execution:** deterministic fact isolation, data-minimized ID-only provider adapter, required-action restoration, 113 passing offline tests, recorded live English/Spanish/adversarial-shaped integration checks, rate limiting, deterministic fallback, and explicit limitations.
+- **Execution:** deterministic fact isolation, data-minimized ID-only provider adapter, required-action restoration, 124 passing offline tests, recorded live English/Spanish/adversarial-shaped integration checks, proxy-aware rate limiting with spoof-resistant defaults, deterministic fallback, and explicit limitations.
 - **Responsible AI:** no prediction, no invented live data, no replacement of official instructions, and no unverified performance claims.

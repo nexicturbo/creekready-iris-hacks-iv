@@ -4,7 +4,7 @@ This document records bounded engineering checks performed on August 8, 2026. It
 
 ## Offline verification
 
-The network-free suite currently contains **113 passing tests**. It covers request boundaries, English and Spanish extraction, flood/wildfire/heat/unclassified behavior, mixed and expired alerts, household needs, deterministic fallback, exact instruction tokenization, flat provider contracts, adversarial output, required-action restoration, rate limiting, security headers, frontend disclosure, accessibility semantics, runtime response validation, and configuration normalization.
+The network-free suite currently contains **124 passing tests**. It covers request boundaries, English and Spanish extraction, flood/wildfire/heat/unclassified behavior, mixed and expired alerts, household needs, deterministic fallback, exact instruction tokenization, flat provider contracts, adversarial output, required-action restoration, spoof-resistant trusted-proxy and rate-limit behavior, security headers, frontend disclosure, accessibility semantics, runtime response validation, and configuration normalization.
 
 Run it with:
 

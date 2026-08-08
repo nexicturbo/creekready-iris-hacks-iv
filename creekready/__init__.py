@@ -7,8 +7,47 @@ from flask import Flask, jsonify, render_template, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from pydantic import ValidationError
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .service import PlanRequest, PlanningService
+
+
+MAX_TRUSTED_PROXY_HOPS = 10
+
+
+def _parse_trusted_proxy_hops(value: object) -> int:
+    """Return a deliberately bounded trusted-proxy count or fail startup."""
+
+    if isinstance(value, bool):
+        raise ValueError(
+            f"TRUSTED_PROXY_HOPS must be an integer from 0 to "
+            f"{MAX_TRUSTED_PROXY_HOPS}."
+        )
+
+    if isinstance(value, int):
+        hops = value
+    elif isinstance(value, str):
+        candidate = value.strip()
+        if not candidate or any(
+            character not in "0123456789" for character in candidate
+        ):
+            raise ValueError(
+                f"TRUSTED_PROXY_HOPS must be an integer from 0 to "
+                f"{MAX_TRUSTED_PROXY_HOPS}."
+            )
+        hops = int(candidate)
+    else:
+        raise ValueError(
+            f"TRUSTED_PROXY_HOPS must be an integer from 0 to "
+            f"{MAX_TRUSTED_PROXY_HOPS}."
+        )
+
+    if not 0 <= hops <= MAX_TRUSTED_PROXY_HOPS:
+        raise ValueError(
+            f"TRUSTED_PROXY_HOPS must be an integer from 0 to "
+            f"{MAX_TRUSTED_PROXY_HOPS}."
+        )
+    return hops
 
 
 def create_app(test_config: dict | None = None) -> Flask:
@@ -20,12 +59,24 @@ def create_app(test_config: dict | None = None) -> Flask:
         JSON_SORT_KEYS=False,
         TESTING=False,
         PLAN_RATE_LIMIT=os.getenv("PLAN_RATE_LIMIT", "12 per minute"),
+        TRUSTED_PROXY_HOPS=os.getenv("TRUSTED_PROXY_HOPS", "0"),
         RATELIMIT_ENABLED=True,
         RATELIMIT_HEADERS_ENABLED=True,
         RATELIMIT_STORAGE_URI=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
     )
     if test_config:
         app.config.update(test_config)
+    trusted_proxy_hops = _parse_trusted_proxy_hops(app.config["TRUSTED_PROXY_HOPS"])
+    app.config["TRUSTED_PROXY_HOPS"] = trusted_proxy_hops
+    if trusted_proxy_hops:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=trusted_proxy_hops,
+            x_proto=0,
+            x_host=0,
+            x_port=0,
+            x_prefix=0,
+        )
     if app.config["TESTING"] and not (test_config or {}).get("RATELIMIT_ENABLED"):
         app.config["RATELIMIT_ENABLED"] = False
     app.json.ensure_ascii = False

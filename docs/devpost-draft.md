@@ -61,7 +61,7 @@ The third challenge was reliability under hackathon conditions. Network access, 
 - Household-aware planning for children, an older adult, pets, limited mobility, and no vehicle.
 - English and Spanish plan generation.
 - A deliberately small privacy footprint: no accounts, database, geolocation, or persistent alert storage.
-- A 113-test network-free suite covering boundaries, served frontend assets and disclosure copy, English and Spanish hazard extraction, mixed and expired-alert handling, conservative extraction confidence, exact instruction tokenization, grounded fallback behavior, all household needs, flat/adversarial provider payloads, required-action restoration, source validation, Unicode output, accessibility/runtime invariants, rate limiting, timestamps, configuration normalization, and security headers.
+- A 124-test network-free suite covering boundaries, served frontend assets and disclosure copy, English and Spanish hazard extraction, mixed and expired-alert handling, conservative extraction confidence, exact instruction tokenization, grounded fallback behavior, all household needs, flat/adversarial provider payloads, required-action restoration, source validation, Unicode output, accessibility/runtime invariants, spoof-resistant trusted-proxy and rate-limit behavior, timestamps, configuration normalization, and security headers.
 - Recorded live Featherless checks with fictional English wildfire, Spanish flood, and injection-shaped flood requests; each returned only allowlisted IDs, preserved exact selected wording, and retained every required server-owned action. These are integration observations, not accuracy or availability claims.
 
 ## What we learned
